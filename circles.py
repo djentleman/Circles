@@ -18,9 +18,9 @@ class Circle:
     def run(self, environment):
         self.body.draw(enviroment)
         # while self.alive:
-            # take in inputs
-            # do some thinking
-            # move
+        # take in inputs
+        # do some thinking
+        # move
             
 
 class Chromosome:
@@ -29,6 +29,12 @@ class Chromosome:
     # genome is fixed length, made of one chromosome
     def __init__(self, genome):
         self.genome = genome # array of genes
+
+    def mutate(self):
+        # pick random gene
+        genomeSize = len(self.genome)
+        geneToChange = random.randint(0, genomeSize - 1)
+        self.genome[geneToChange].mutate()
 
 class Gene:
     # gene, consists of a name and genotype (AA/Aa/aA/aa),
@@ -41,15 +47,41 @@ class Gene:
         self.phenotype = phenotype # an array of everything this
         # gene effects, and how much it effects it, stored as tuples
         # eg. [("speed", 1.1), ("HP", 0.95), ...., ]
+
+    def mutate(self):
+        rand = random.random() # generate float between 1 and 0
+        if rand > 0.98:
+            # effect phenotype
+            print()
+        else:
+            # effect genotype
+            genoRand1 = random.randint(0,1)
+            genoRand2 = random.randint(0,1)
+            self.genotype = (bool(genoRand1), bool(genoRand2))
+            
         
         
         
+
+def getLine(point1, point2):
+    line = Line(point1, point2)
+    line.setFill("white")
+    return line
     
             
 def createEnvironment():
-    environment = GraphWin("Circles", 800, 600)
-    statBarrier = Line(Point(600, 0), Point(600, 600))
+    environment = GraphWin("Circles", 1050, 750)
+    environment.setBackground("black")
+    
+    statBarrier = getLine(Point(750, 0), Point(750, 751))
     statBarrier.draw(environment)
+
+    controlBarrier = getLine(Point(750, 600), Point(1050, 600))
+    controlBarrier.draw(environment)
+
+    lblStats = Text(Point(900, 50), "STATS")
+    lblStats.setFill("white")
+    lblStats.draw(environment)
 
     return environment
     
