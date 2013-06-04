@@ -13,7 +13,7 @@ class Organism:
     # every organism has
     def __init__(self, spawn, environment):
         self.spawn = spawn
-        self.body = Circle(spawn, 10) # radius is 10 from now
+        self.body = Circle(spawn, 3) # radius is 10 from now
         self.alive = True # turns false when dead
         self.environment = environment
         
