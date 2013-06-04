@@ -7,7 +7,7 @@ from graphics import *
 from threading import *
 
 s = Semaphore() # implements mutal exclusion
-speedMult = 1 # speed multiplier - global (for now)
+speedMult = 1.0 # speed multiplier - global (for now)
 
 class Organism:
     # circle class - the digital organism itself
@@ -230,15 +230,49 @@ def updateButton(pausing, environment):
     else:
         # change button to pause
         drawButton(environment, "| |", 900, 700)
+
+def searchForOrganism(x, y, organisms, stats):
+    resetColours(organisms) # reset colours
+    organism = None
+    for current in organisms:
+        pos = current.body.getCenter()
+        radius = current.body.getRadius()
+        if x >= (pos.getX() - radius) and x <= (pos.getX() + radius) and \
+           y >= (pos.getY() - radius) and y <= (pos.getY() + radius):
+            organism = current
+            break # break out of loop
+    #update stats
+    if organism == None:
+        stats[2].setText("-")
+        stats[3].setText("-")
+        stats[4].setText("-")
+        stats[5].setText("-")
+        return
+    gender = "Female"
+    if organism.isMale:
+        gender = "Male"
+    stats[2].setText(gender)
+    stats[3].setText(organism.aggressionIndex)
+    stats[4].setText(str("%.3f" % organism.direction) + "°")
+    stats[5].setText("%.3f" % organism.speed)
+    organism.body.setOutline("green")
+    
+def resetColours(organisms):
+    for organism in organisms:
+         organism.body.setOutline(color_rgb(organism.aggressionIndex, 0, 0))
+        
+        
         
 
-def mouseAction(x, y, running, environment):
+def mouseAction(x, y, running, environment, organisms, stats):
     global speedMult
     # mouse has been pressed
     if (x >= 835 and x <= 865 and y >= 685 and y <= 715):
         # slow down
         #print("slow down pressed")
         speedMult *= 0.5
+        if speedMult < 0.03125:
+            speedMult = 0.03125 # cap at 0.03125
         return running
     elif (x >= 885 and x <= 915 and y >= 685 and y <= 715):
         # pause/play
@@ -252,9 +286,11 @@ def mouseAction(x, y, running, environment):
         # speed up
         #print("speed up pressed")
         speedMult *= 2
+        if speedMult > 64:
+            speedMult = 64.0 # cap at 64
         return running
     else:
-        print("search for organism")
+        searchForOrganism(x, y, organisms, stats)
         # search for organism, update stats
         return running
         
@@ -290,16 +326,17 @@ def main():
             #update stats
             stats[0].setText(len(organisms))
             stats[1].setText(str(speedMult) + "x")
-            #
+            # -----------------
             organisms[count % 100].wander()
             count += 1
             # check for mouse clicks
             mouseClick = environment.checkMouse()
             if mouseClick != None: # else continue
-                running = mouseAction(mouseClick.getX(), mouseClick.getY(), running, environment)
+                running = mouseAction(mouseClick.getX(), mouseClick.getY(), running, environment, organisms, stats)
+        stats[1].setText("Paused")
         mouseClick = environment.checkMouse()
         if mouseClick != None: # else continue
-            running = mouseAction(mouseClick.getX(), mouseClick.getY(), running, environment)
+            running = mouseAction(mouseClick.getX(), mouseClick.getY(), running, environment, organisms, stats)
         
 
     # render the environment, then wait for clicks
