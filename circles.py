@@ -8,6 +8,18 @@ from threading import *
 
 s = Semaphore() # implements mutal exclusion
 
+
+class OrganismThread(Thread):
+    # every thread has an organism, this allows many to move at once
+    def __init__(self, organism):
+        Thread.__init__(self)
+        self.organism = organism
+        
+    def run(self):
+        global s # for mutal eclusion if needed
+        self.organism.run()
+        
+
 class Organism:
     # circle class - the digital organism itself
     # phenotypes are attributes, eg: speed, vision...
@@ -29,7 +41,7 @@ class Organism:
         # aggression will be determined in genome (and hunger), with some random element
         # random for now
         
-        
+
         
 
     def run(self):
@@ -143,9 +155,13 @@ def test(environment):
     organism1 = Organism(Point(100, 100), environment)
     organism2 = Organism(Point(100, 200), environment)
     organism3 = Organism(Point(300, 200), environment)
-    organism1.run()
-    organism2.run()
-    organism3.run()
+    thread1 = OrganismThread(organism1)
+    thread2 = OrganismThread(organism2)
+    thread3 = OrganismThread(organism3)
+    thread1.start()
+    thread2.start()
+    thread3.start()
+    
     
 
 def main():
