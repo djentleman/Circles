@@ -8,18 +8,6 @@ from threading import *
 
 s = Semaphore() # implements mutal exclusion
 
-
-class OrganismThread(Thread):
-    # every thread has an organism, this allows many to move at once
-    def __init__(self, organism):
-        Thread.__init__(self)
-        self.organism = organism
-        
-    def run(self):
-        global s # for mutal eclusion if needed
-        self.organism.run()
-        
-
 class Organism:
     # circle class - the digital organism itself
     # phenotypes are attributes, eg: speed, vision...
@@ -30,7 +18,7 @@ class Organism:
         self.alive = True # turns false when dead
         self.environment = environment
 
-        self.speed = random.random()/10 #will be decided in genome
+        self.speed = random.random()/5 #will be decided in genome
         self.direction = random.randint(1, 360)
         genderSeed = random.random()
         self.isMale = False
@@ -44,33 +32,47 @@ class Organism:
 
         
 
-    def run(self):
-        global s
+    def set(self):
         self.body.draw(self.environment)
         self.getColor()
-        while True:  # while self.alive:
-            # take in inputs
-            # do some thinking
-            s.acquire()
-            self.wander()  # move
-            s.release()
-            time.sleep(0)
             
 
     def wander(self):
-        angleRadians = self.direction * ((2 * math.pi) / 360)
-        xMovement = self.speed * math.cos(angleRadians)
-        yMovement = self.speed * math.sin(angleRadians)
-        self.body.move(xMovement, yMovement)
-        position = self.body.getCenter()
-        if position.getX() <= 10 or position.getX() >= 740:
-            #print("bounce")
-            xMovement = xMovement * -1
-        elif position.getY() <= 10 or position.getY() >= 740:
-            #print("bounce")
-            yMovement = yMovement * -1
-        newDirection = math.atan(yMovement / xMovement)
-        self.direction = 180 * newDirection / math.pi
+        try:
+            #print(self.direction)
+            angleRadians = self.direction * ((math.pi) / 180)
+            xMovement = self.speed * math.cos(angleRadians)
+            yMovement = self.speed * math.sin(angleRadians)
+            self.body.move(xMovement, yMovement)
+            position = self.body.getCenter()
+            if position.getX() <= 5 or position.getX() >= 745:
+                xMovement = -xMovement
+                #print("X Movement: ", xMovement)
+                #print("Y Movement: ", yMovement)
+                #print("X Coord: ", position.getX())
+                #print("Y Coord: ", position.getY())
+                #print("-------------x-----------------")
+                #print("-------------------------------")
+                #print("-------------------------------")
+                
+            elif position.getY() <= 5 or position.getY() >= 745:
+                yMovement = -yMovement
+
+                #print("X Movement: ", xMovement)
+                #print("Y Movement: ", yMovement)
+                #print("X Coord: ", position.getX())
+                #print("Y Coord: ", position.getY())
+                #print("--------------y----------------")
+                #print("-------------------------------")
+                #print("-------------------------------")
+                
+            
+            newDirection = math.atan2(yMovement, xMovement)
+            self.direction = (180 * newDirection) / math.pi
+        except(Exception):
+            #do nothing
+            print("err")
+            
         
     def getColor(self):
         # color is defined by gender and aggression
@@ -152,6 +154,7 @@ def drawInterface(environment):
     drawButton(environment, "«", 850, 700)
     drawButton(environment, "►", 900, 700)
     drawButton(environment, "»", 950, 700)
+
     
     
             
@@ -169,14 +172,17 @@ def test(environment):
     organism1 = Organism(Point(100, 100), environment)
     organism2 = Organism(Point(100, 200), environment)
     organism3 = Organism(Point(300, 200), environment)
-    thread1 = OrganismThread(organism1)
-    thread2 = OrganismThread(organism2)
-    thread3 = OrganismThread(organism3)
-    thread1.start()
-    thread2.start()
-    thread3.start()
+    organism1.set()
+    organism2.set()
+    organism3.set()
+    while True:
+        organism1.wander()
+        organism2.wander()
+        organism3.wander()
+        time.sleep(0)
     
-    
+def degreesToRadians(rad):
+    return rad * (math.pi / 180)
 
 def main():
     environment = createEnvironment()
