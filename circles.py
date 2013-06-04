@@ -62,12 +62,11 @@ class Organism:
                 
             elif position.getY() <= 5 or position.getY() >= 745:
                 yMovement = -yMovement
-
                 #print("X Movement: ", xMovement)
                 #print("Y Movement: ", yMovement)
                 #print("X Coord: ", position.getX())
                 #print("Y Coord: ", position.getY())
-                #print("--------------y----------------")
+                #print("-------------y-----------------")
                 #print("-------------------------------")
                 #print("-------------------------------")
                 
@@ -133,12 +132,16 @@ def getLine(point1, point2):
     line.setFill("white")
     return line
 
+def getText(point, message):
+    text = Text(point, message)
+    text.setFill("white")
+    return text
+
 def drawButton(environment, contents, xCoord, yCoord):
     # all buttons 30 by 30
     button = Rectangle(Point(xCoord - 15, yCoord - 15), Point(xCoord + 15, yCoord + 15))
     button.setOutline("white")
-    text = Text(Point(xCoord, yCoord), contents)
-    text.setFill("white")
+    text = getText(Point(xCoord, yCoord), contents)
     button.draw(environment)
     text.draw(environment)
     
@@ -147,44 +150,97 @@ def drawInterface(environment):
     statBarrier = getLine(Point(750, 0), Point(750, 751))
     statBarrier.draw(environment)
 
-    controlBarrier = getLine(Point(750, 600), Point(1050, 600))
+    controlBarrier = getLine(Point(750, 650), Point(1050, 650))
     controlBarrier.draw(environment)
     
-    lblStats = Text(Point(900, 50), "STATS")
-    lblStats.setFill("white")
+    lblStats = getText(Point(900, 30), "STATS")
+    lblStats.setSize(18)
     lblStats.draw(environment)
 
-    drawButton(environment, "«", 825, 700)
-    drawButton(environment, "◄◄", 875, 700)
-    drawButton(environment, "| |", 925, 700)
-    drawButton(environment, "»", 975, 700)
+
+    drawButton(environment, "«", 850, 700)
+    drawButton(environment, "| |", 900, 700)
+    drawButton(environment, "»", 950, 700)
+
+def renderStats(environment):
+    lblGenerals = getText(Point(900, 70), "General Stats")
+    lblGenerals.draw(environment)
+    
+    titleBarrier = getLine(Point(765, 50), Point(1035, 50))
+    titleBarrier.draw(environment)
+    
+    lblNoOfOrganisms = getText(Point(845, 100), "Number Of Organisms:")
+    lblNoOfOrganisms.draw(environment)
+    lblPlay = getText(Point(808, 130), "Play Speed:")
+    lblPlay.draw(environment)
+    
+    generalBarrier = getLine(Point(765, 150), Point(1035, 150))
+    generalBarrier.draw(environment)
+
+    lblGenerals = getText(Point(900, 170), "Local Stats")
+    lblGenerals.draw(environment)
+    
+    lblGender = getText(Point(794, 200), "Gender:")
+    lblGender.draw(environment)
+    lblAggression = getText(Point(808, 230), "Aggression:")
+    lblAggression.draw(environment)
+    lblDirection = getText(Point(799, 260), "Direction:")
+    lblDirection.draw(environment)
+    lblSpeed = getText(Point(791, 290), "Speed:")
+    lblSpeed.draw(environment)
+
+    stats = [] # array of stats
+
+    noOfOrganisms = getText(Point(1000, 100), "-")
+    noOfOrganisms.draw(environment)
+    stats.append(noOfOrganisms) # index 0
+
+    play = getText(Point(1000, 130), "-")
+    play.draw(environment)
+    stats.append(play) # index 1
+
+    gender = getText(Point(1000, 200), "-")
+    gender.draw(environment)
+    stats.append(gender) # index 2
+
+    aggression = getText(Point(1000, 230), "-")
+    aggression.draw(environment)
+    stats.append(aggression) # index 3
+
+    direction = getText(Point(1000, 260), "-")
+    direction.draw(environment)
+    stats.append(direction) # index 4
+
+    speed = getText(Point(1000, 290), "-")
+    speed.draw(environment)
+    stats.append(speed) # index 5
+
+
+    return stats
+    
+
 
 def updateButton(pausing, environment):
-    blackout = Rectangle(Point(905, 680), Point(945, 720))
+    blackout = Rectangle(Point(880, 680), Point(920, 720))
     blackout.setFill("black")
     blackout.draw(environment)
     if pausing:
         # change button to play
-        drawButton(environment, "►", 925, 700)
+        drawButton(environment, "►", 900, 700)
     else:
         # change button to pause
-        drawButton(environment, "| |", 925, 700)
+        drawButton(environment, "| |", 900, 700)
         
 
 def mouseAction(x, y, running, environment):
     global speedMult
     # mouse has been pressed
-    if (x >= 810 and x <= 840 and y >= 685 and y <= 715):
+    if (x >= 835 and x <= 865 and y >= 685 and y <= 715):
         # slow down
         #print("slow down pressed")
         speedMult *= 0.5
-        return True
-    elif (x >= 860 and x <= 890 and y >= 685 and y <= 715):
-        # rewind
-        #print("rewind pressed")
-        speedMult *= -1
-        return True
-    elif (x >= 910 and x <= 940 and y >= 685 and y <= 715):
+        return running
+    elif (x >= 885 and x <= 915 and y >= 685 and y <= 715):
         # pause/play
         updateButton(running, environment)
         if running:
@@ -192,15 +248,15 @@ def mouseAction(x, y, running, environment):
             return False
         # change button to pause
         return True
-    elif (x >= 960 and x <= 990 and y >= 685 and y <= 715):
+    elif (x >= 935 and x <= 965 and y >= 685 and y <= 715):
         # speed up
         #print("speed up pressed")
         speedMult *= 2
-        return True
+        return running
     else:
         print("search for organism")
         # search for organism, update stats
-        return True
+        return running
         
     
             
@@ -217,19 +273,24 @@ def createEnvironment():
 def spawn(environment, n):
     organisms = []
     for i in range(n):
-        organism = Organism(Point(i * 2,i * 2), environment)
+        organism = Organism(Point(100, 100), environment)
         organisms.append(organism)
         organism.set()
     return organisms
 
 def main():
+    global speedMult
     environment = createEnvironment()
+    stats = renderStats(environment) # changable stats are outputted as an array
     organisms = spawn(environment, 100)
     count = 0
     running = True
     while True: # organisms don't move when not running
         while running:
-            # update stats
+            #update stats
+            stats[0].setText(len(organisms))
+            stats[1].setText(str(speedMult) + "x")
+            #
             organisms[count % 100].wander()
             count += 1
             # check for mouse clicks
