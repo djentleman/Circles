@@ -45,18 +45,32 @@ class Organism:
         
 
     def run(self):
+        global s
         self.body.draw(self.environment)
         self.getColor()
         while True:  # while self.alive:
             # take in inputs
             # do some thinking
+            s.acquire()
             self.wander()  # move
+            s.release()
+            time.sleep(0)
+            
 
     def wander(self):
         angleRadians = self.direction * ((2 * math.pi) / 360)
         xMovement = self.speed * math.cos(angleRadians)
         yMovement = self.speed * math.sin(angleRadians)
         self.body.move(xMovement, yMovement)
+        position = self.body.getCenter()
+        if position.getX() <= 10 or position.getX() >= 740:
+            #print("bounce")
+            xMovement = xMovement * -1
+        elif position.getY() <= 10 or position.getY() >= 740:
+            #print("bounce")
+            yMovement = yMovement * -1
+        newDirection = math.atan(yMovement / xMovement)
+        self.direction = 180 * newDirection / math.pi
         
     def getColor(self):
         # color is defined by gender and aggression
