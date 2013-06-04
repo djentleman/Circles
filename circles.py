@@ -2,6 +2,7 @@
 
 import time
 import random
+import math
 from graphics import *
 from threading import *
 
@@ -16,7 +17,9 @@ class Organism:
         self.body = Circle(spawn, 3) # radius is 10 from now
         self.alive = True # turns false when dead
         self.environment = environment
-        
+
+        self.speed = random.random()/10 #will be decided in genome
+        self.direction = random.randint(1, 360)
         genderSeed = random.random()
         self.isMale = False
         if genderSeed > 0.5: # weighting will be decided in genome
@@ -32,11 +35,17 @@ class Organism:
     def run(self):
         self.body.draw(self.environment)
         self.getColor()
-        # while self.alive:
-        # take in inputs
-        # do some thinking
-        # move
+        while True:  # while self.alive:
+            # take in inputs
+            # do some thinking
+            self.wander()  # move
 
+    def wander(self):
+        angleRadians = self.direction * ((2 * math.pi) / 360)
+        xMovement = self.speed * math.cos(angleRadians)
+        yMovement = self.speed * math.sin(angleRadians)
+        self.body.move(xMovement, yMovement)
+        
     def getColor(self):
         # color is defined by gender and aggression
         self.body.setOutline(color_rgb(self.aggressionIndex, 0, 0)) # more red when aggressive
