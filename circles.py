@@ -7,20 +7,43 @@ from threading import *
 
 s = Semaphore() # implements mutal exclusion
 
-class Circle:
+class Organism:
     # circle class - the digital organism itself
     # phenotypes are attributes, eg: speed, vision...
+    # every organism has
     def __init__(self, spawn, environment):
         self.spawn = spawn
-        self.body = Circle(spawn, 10) # radius is 10 from now
+        self.body = Circle(spawn, 3) # radius is 10 from now
         self.alive = True # turns false when dead
+        self.environment = environment
+        
+        genderSeed = random.random()
+        self.isMale = False
+        if genderSeed > 0.5: # weighting will be decided in genome
+            self.isMale = True # 50% chance of being male for now
+            
+        self.agressionIndex = random.randint(0, 255)
+        # agression will be determined in genome, with some random element
+        # random for now
+        
+        
+        
 
-    def run(self, environment):
-        self.body.draw(enviroment)
+    def run(self):
+        self.body.draw(self.environment)
+        self.getColor()
         # while self.alive:
         # take in inputs
         # do some thinking
         # move
+
+    def getColor(self):
+        # color is defined by gender and agression
+        self.body.setOutline(color_rgb(self.agressionIndex, 0, 0)) # more red when agressive
+        self.body.setFill("pink")
+        if self.isMale:
+            self.body.setFill("blue")
+        
             
 
 class Chromosome:
@@ -50,7 +73,7 @@ class Gene:
 
     def mutate(self):
         rand = random.random() # generate float between 1 and 0
-        if rand > 0.98:
+        if rand > 0.99:
             # effect phenotype
             print()
         else:
@@ -84,9 +107,18 @@ def createEnvironment():
     lblStats.draw(environment)
 
     return environment
+
+def test(environment):
+    organism1 = Organism(Point(100, 100), environment)
+    organism2 = Organism(Point(100, 200), environment)
+    organism3 = Organism(Point(300, 200), environment)
+    organism1.run()
+    organism2.run()
+    organism3.run()
     
 
 def main():
     environment = createEnvironment()
+    test(environment)
 
 main()
