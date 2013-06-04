@@ -13,7 +13,7 @@ class Organism:
     # every organism has
     def __init__(self, spawn, environment):
         self.spawn = spawn
-        self.body = Circle(spawn, 3) # radius is 10 from now
+        self.body = Circle(spawn, 10) # radius is 10 from now
         self.alive = True # turns false when dead
         self.environment = environment
         
@@ -22,8 +22,8 @@ class Organism:
         if genderSeed > 0.5: # weighting will be decided in genome
             self.isMale = True # 50% chance of being male for now
             
-        self.agressionIndex = random.randint(0, 255)
-        # agression will be determined in genome, with some random element
+        self.aggressionIndex = random.randint(0, 255)
+        # aggression will be determined in genome (and hunger), with some random element
         # random for now
         
         
@@ -38,8 +38,8 @@ class Organism:
         # move
 
     def getColor(self):
-        # color is defined by gender and agression
-        self.body.setOutline(color_rgb(self.agressionIndex, 0, 0)) # more red when agressive
+        # color is defined by gender and aggression
+        self.body.setOutline(color_rgb(self.aggressionIndex, 0, 0)) # more red when aggressive
         self.body.setFill("pink")
         if self.isMale:
             self.body.setFill("blue")
@@ -90,21 +90,43 @@ def getLine(point1, point2):
     line = Line(point1, point2)
     line.setFill("white")
     return line
+
+def drawButton(environment, contents, xCoord, yCoord):
+    # all buttons 30 by 30
+    button = Rectangle(Point(xCoord - 15, yCoord - 15), Point(xCoord + 15, yCoord + 15))
+    button.setOutline("white")
+    text = Text(Point(xCoord, yCoord), contents)
+    text.setFill("white")
+    button.draw(environment)
+    text.draw(environment)
+    
+
+def drawInterface(environment):
+
+        
+    statBarrier = getLine(Point(750, 0), Point(750, 751))
+    statBarrier.draw(environment)
+
+    controlBarrier = getLine(Point(750, 600), Point(1050, 600))
+    controlBarrier.draw(environment)
+    
+    lblStats = Text(Point(900, 50), "STATS")
+    lblStats.setFill("white")
+    lblStats.draw(environment)
+
+    drawButton(environment, "«", 850, 700)
+    drawButton(environment, "►", 900, 700)
+    drawButton(environment, "»", 950, 700)
+    
     
             
 def createEnvironment():
     environment = GraphWin("Circles", 1050, 750)
     environment.setBackground("black")
     
-    statBarrier = getLine(Point(750, 0), Point(750, 751))
-    statBarrier.draw(environment)
+    # RANDOMLY GENERATE FOOD
 
-    controlBarrier = getLine(Point(750, 600), Point(1050, 600))
-    controlBarrier.draw(environment)
-
-    lblStats = Text(Point(900, 50), "STATS")
-    lblStats.setFill("white")
-    lblStats.draw(environment)
+    drawInterface(environment)
 
     return environment
 
@@ -120,5 +142,7 @@ def test(environment):
 def main():
     environment = createEnvironment()
     test(environment)
+
+    # render the environment, then wait for clicks
 
 main()
