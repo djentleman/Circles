@@ -14,18 +14,20 @@ class Organism:
     # every organism has
     def __init__(self, spawn, environment):
         self.spawn = spawn
-        self.body = Circle(spawn, 3) # radius is 10 from now
+        self.body = Circle(spawn, random.randint(1, 5)) # radius is random from now
         self.alive = True # turns false when dead
         self.environment = environment
 
-        self.speed = random.random()/5 #will be decided in genome
+        self.speed = random.random() * 2 #will be decided in genome
         self.direction = random.randint(1, 360)
         genderSeed = random.random()
         self.isMale = False
         if genderSeed > 0.5: # weighting will be decided in genome
             self.isMale = True # 50% chance of being male for now
             
-        self.aggressionIndex = random.randint(0, 255)
+        aggRand1 = random.randint(0, int(255 ** 0.5))
+        aggRand2 = random.randint(0, int(255 ** 0.5))
+        self.aggressionIndex = aggRand1 * aggRand2 # produces bell curve
         # aggression will be determined in genome (and hunger), with some random element
         # random for now
         
@@ -168,25 +170,23 @@ def createEnvironment():
 
     return environment
 
-def test(environment):
-    organism1 = Organism(Point(100, 100), environment)
-    organism2 = Organism(Point(100, 200), environment)
-    organism3 = Organism(Point(300, 200), environment)
-    organism1.set()
-    organism2.set()
-    organism3.set()
+def spawn(environment, n):
+    organisms = []
+    for i in range(n):
+        organism = Organism(Point(10,10), environment)
+        organisms.append(organism)
+        organism.set()
+    count = 0
     while True:
-        organism1.wander()
-        organism2.wander()
-        organism3.wander()
-        time.sleep(0)
+        organisms[count % n].wander()
+        count += 1
     
 def degreesToRadians(rad):
     return rad * (math.pi / 180)
 
 def main():
     environment = createEnvironment()
-    test(environment)
+    spawn(environment, 100)
 
     # render the environment, then wait for clicks
 
