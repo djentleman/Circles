@@ -7,18 +7,19 @@ from graphics import *
 from threading import *
 
 s = Semaphore() # implements mutal exclusion
+speedMult = 1 # speed multiplier - global (for now)
 
 class Organism:
     # circle class - the digital organism itself
     # phenotypes are attributes, eg: speed, vision...
-    # every organism has
+    # ultimatley each organism will be running on a seperate thread
     def __init__(self, spawn, environment):
         self.spawn = spawn
-        self.body = Circle(spawn, random.randint(1, 5)) # radius is random from now
+        self.body = Circle(spawn, random.random() * 6) # radius is random from now
         self.alive = True # turns false when dead
         self.environment = environment
 
-        self.speed = random.random() * 2 #will be decided in genome
+        self.speed = random.random() / 2 #will be decided in genome
         self.direction = random.randint(1, 360)
         genderSeed = random.random()
         self.isMale = False
@@ -40,11 +41,13 @@ class Organism:
             
 
     def wander(self):
+        global speedMult
+        speed = self.speed * speedMult
         try:
             #print(self.direction)
             angleRadians = self.direction * ((math.pi) / 180)
-            xMovement = self.speed * math.cos(angleRadians)
-            yMovement = self.speed * math.sin(angleRadians)
+            xMovement = speed * math.cos(angleRadians)
+            yMovement = speed * math.sin(angleRadians)
             self.body.move(xMovement, yMovement)
             position = self.body.getCenter()
             if position.getX() <= 5 or position.getX() >= 745:
@@ -79,7 +82,7 @@ class Organism:
     def getColor(self):
         # color is defined by gender and aggression
         self.body.setOutline(color_rgb(self.aggressionIndex, 0, 0)) # more red when aggressive
-        self.body.setFill("pink")
+        self.body.setFill("pink3")
         if self.isMale:
             self.body.setFill("blue")
         
@@ -141,8 +144,6 @@ def drawButton(environment, contents, xCoord, yCoord):
     
 
 def drawInterface(environment):
-
-        
     statBarrier = getLine(Point(750, 0), Point(750, 751))
     statBarrier.draw(environment)
 
@@ -153,18 +154,61 @@ def drawInterface(environment):
     lblStats.setFill("white")
     lblStats.draw(environment)
 
-    drawButton(environment, "«", 850, 700)
-    drawButton(environment, "►", 900, 700)
-    drawButton(environment, "»", 950, 700)
+    drawButton(environment, "«", 825, 700)
+    drawButton(environment, "◄◄", 875, 700)
+    drawButton(environment, "| |", 925, 700)
+    drawButton(environment, "»", 975, 700)
 
-    
+def updateButton(pausing, environment):
+    blackout = Rectangle(Point(905, 680), Point(945, 720))
+    blackout.setFill("black")
+    blackout.draw(environment)
+    if pausing:
+        # change button to play
+        drawButton(environment, "►", 925, 700)
+    else:
+        # change button to pause
+        drawButton(environment, "| |", 925, 700)
+        
+
+def mouseAction(x, y, running, environment):
+    global speedMult
+    # mouse has been pressed
+    if (x >= 810 and x <= 840 and y >= 685 and y <= 715):
+        # slow down
+        #print("slow down pressed")
+        speedMult *= 0.5
+        return True
+    elif (x >= 860 and x <= 890 and y >= 685 and y <= 715):
+        # rewind
+        #print("rewind pressed")
+        speedMult *= -1
+        return True
+    elif (x >= 910 and x <= 940 and y >= 685 and y <= 715):
+        # pause/play
+        updateButton(running, environment)
+        if running:
+            # change button to play
+            return False
+        # change button to pause
+        return True
+    elif (x >= 960 and x <= 990 and y >= 685 and y <= 715):
+        # speed up
+        #print("speed up pressed")
+        speedMult *= 2
+        return True
+    else:
+        print("search for organism")
+        # search for organism, update stats
+        return True
+        
     
             
 def createEnvironment():
     environment = GraphWin("Circles", 1050, 750)
     environment.setBackground("black")
     
-    # RANDOMLY GENERATE FOOD
+    # RANDOMLY GENERATE FOOD (daves jawb)
 
     drawInterface(environment)
 
@@ -173,20 +217,29 @@ def createEnvironment():
 def spawn(environment, n):
     organisms = []
     for i in range(n):
-        organism = Organism(Point(10,10), environment)
+        organism = Organism(Point(i * 2,i * 2), environment)
         organisms.append(organism)
         organism.set()
-    count = 0
-    while True:
-        organisms[count % n].wander()
-        count += 1
-    
-def degreesToRadians(rad):
-    return rad * (math.pi / 180)
+    return organisms
 
 def main():
     environment = createEnvironment()
-    spawn(environment, 100)
+    organisms = spawn(environment, 100)
+    count = 0
+    running = True
+    while True: # organisms don't move when not running
+        while running:
+            # update stats
+            organisms[count % 100].wander()
+            count += 1
+            # check for mouse clicks
+            mouseClick = environment.checkMouse()
+            if mouseClick != None: # else continue
+                running = mouseAction(mouseClick.getX(), mouseClick.getY(), running, environment)
+        mouseClick = environment.checkMouse()
+        if mouseClick != None: # else continue
+            running = mouseAction(mouseClick.getX(), mouseClick.getY(), running, environment)
+        
 
     # render the environment, then wait for clicks
 
