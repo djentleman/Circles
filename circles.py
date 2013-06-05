@@ -15,19 +15,20 @@ class Organism:
     # ultimatley each organism will be running on a seperate thread
     def __init__(self, spawn, environment):
         self.spawn = spawn
-        self.body = Circle(spawn, random.random() * 6) # radius is random from now
+        self.radius = (random.random() * 6) + 1  # radius is random for now
+        self.mass = math.pi * (self.radius * self.radius)
+        self.body = Circle(spawn, self.radius)
         self.alive = True # turns false when dead
         self.environment = environment
-
-        self.speed = random.random() / 2 #will be decided in genome
+        self.speed = random.random() #will be decided in genome
         self.direction = random.randint(1, 360)
         genderSeed = random.random()
         self.isMale = False
         if genderSeed > 0.5: # weighting will be decided in genome
             self.isMale = True # 50% chance of being male for now
             
-        aggRand1 = random.randint(0, int(255 ** 0.5))
-        aggRand2 = random.randint(0, int(255 ** 0.5))
+        aggRand1 = random.randint(1, int(255 ** 0.5))
+        aggRand2 = random.randint(1, int(255 ** 0.5))
         self.aggressionIndex = aggRand1 * aggRand2 # produces bell curve
         # aggression will be determined in genome (and hunger), with some random element
         # random for now
@@ -188,6 +189,12 @@ def renderStats(environment):
     lblDirection.draw(environment)
     lblSpeed = getText(Point(791, 290), "Speed:")
     lblSpeed.draw(environment)
+    lblMass = getText(Point(788, 320), "Mass:")
+    lblMass.draw(environment)
+    lblX = getText(Point(798, 350), "X-Coord:")
+    lblX.draw(environment)
+    lblY = getText(Point(798, 380), "Y-Coord:")
+    lblY.draw(environment)
 
     stats = [] # array of stats
 
@@ -215,6 +222,17 @@ def renderStats(environment):
     speed.draw(environment)
     stats.append(speed) # index 5
 
+    mass = getText(Point(1000, 320), "-")
+    mass.draw(environment)
+    stats.append(mass) # index 6
+    
+    x = getText(Point(1000, 350), "-")
+    x.draw(environment)
+    stats.append(x) # index 7
+
+    x = getText(Point(1000, 380), "-")
+    x.draw(environment)
+    stats.append(x) # index 8
 
     return stats
     
@@ -243,11 +261,8 @@ def searchForOrganism(x, y, organisms, stats):
             break # break out of loop
     #update stats
     if organism == None:
-        stats[2].setText("-")
-        stats[3].setText("-")
-        stats[4].setText("-")
-        stats[5].setText("-")
-        return
+        resetLocalStats(stats)
+        return organism
     gender = "Female"
     if organism.isMale:
         gender = "Male"
@@ -255,13 +270,19 @@ def searchForOrganism(x, y, organisms, stats):
     stats[3].setText(organism.aggressionIndex)
     stats[4].setText(str("%.3f" % organism.direction) + "°")
     stats[5].setText("%.3f" % organism.speed)
+    stats[6].setText("%.3f" % organism.mass)
+    stats[7].setText("%.3f" % organism.body.getCenter().getX())
+    stats[8].setText("%.3f" % organism.body.getCenter().getY())
     organism.body.setOutline("green")
+    return organism
     
 def resetColours(organisms):
     for organism in organisms:
          organism.body.setOutline(color_rgb(organism.aggressionIndex, 0, 0))
         
-        
+def resetLocalStats(stats):
+    for index in range(2, len(stats)):
+        stats[index].setText("-")
         
 
 def mouseAction(x, y, running, environment, organisms, stats):
@@ -273,26 +294,26 @@ def mouseAction(x, y, running, environment, organisms, stats):
         speedMult *= 0.5
         if speedMult < 0.03125:
             speedMult = 0.03125 # cap at 0.03125
-        return running
+        return running, None
     elif (x >= 885 and x <= 915 and y >= 685 and y <= 715):
         # pause/play
         updateButton(running, environment)
         if running:
             # change button to play
-            return False
+            return False, None
         # change button to pause
-        return True
+        return True, None
     elif (x >= 935 and x <= 965 and y >= 685 and y <= 715):
         # speed up
         #print("speed up pressed")
         speedMult *= 2
         if speedMult > 64:
             speedMult = 64.0 # cap at 64
-        return running
+        return running, None
     else:
-        searchForOrganism(x, y, organisms, stats)
+        organism = searchForOrganism(x, y, organisms, stats)
         # search for organism, update stats
-        return running
+        return running, organism
         
     
             
@@ -318,25 +339,32 @@ def main():
     global speedMult
     environment = createEnvironment()
     stats = renderStats(environment) # changable stats are outputted as an array
-    organisms = spawn(environment, 100)
+    organisms = spawn(environment, 50)
     count = 0
+    organism = None
     running = True
     while True: # organisms don't move when not running
         while running:
             #update stats
             stats[0].setText(len(organisms))
             stats[1].setText(str(speedMult) + "x")
+            if organism != None and (count % 10 == 0):
+                # this is a critical area - only important stats go here
+                stats[4].setText(str("%.3f" % organism.direction) + "°")
+                stats[5].setText("%.3f" % organism.speed)
+                stats[7].setText("%.3f" % organism.body.getCenter().getX())
+                stats[8].setText("%.3f" % organism.body.getCenter().getY())
             # -----------------
-            organisms[count % 100].wander()
+            organisms[count % 50].wander()
             count += 1
             # check for mouse clicks
             mouseClick = environment.checkMouse()
             if mouseClick != None: # else continue
-                running = mouseAction(mouseClick.getX(), mouseClick.getY(), running, environment, organisms, stats)
+                running, organism = mouseAction(mouseClick.getX(), mouseClick.getY(), running, environment, organisms, stats)
         stats[1].setText("Paused")
         mouseClick = environment.checkMouse()
         if mouseClick != None: # else continue
-            running = mouseAction(mouseClick.getX(), mouseClick.getY(), running, environment, organisms, stats)
+            running, organism = mouseAction(mouseClick.getX(), mouseClick.getY(), running, environment, organisms, stats)
         
 
     # render the environment, then wait for clicks
