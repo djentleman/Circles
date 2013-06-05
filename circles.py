@@ -17,6 +17,10 @@ class Organism:
         self.spawn = spawn
         self.radius = (random.random() * 6) + 1  # radius is random for now
         self.mass = math.pi * (self.radius * self.radius)
+        self.energy = random.randint(80, 120) # start off at ~100 energy (ultimatley this will be determined in genome)
+        # everything uses energy, having keen vision saps energy more than awful vision
+        # this is effectivley the thing that drives the organisms, energy can be gained
+        # by eating food, or other organisms
         self.body = Circle(spawn, self.radius)
         self.alive = True # turns false when dead
         self.environment = environment
@@ -39,44 +43,76 @@ class Organism:
     def set(self):
         self.body.draw(self.environment)
         self.getColor()
+
+    def run(self):
+        # looks at surroundings, then does something
+        # THINKING GOES HERE
+
+        success = self.wander()
+
+
+
+        
+        if not success: # not success = nothing happened
+            # sap some energy for idling
+            self.energy -= 0.0005
+
+        if self.energy <= 0:
+            self.alive = False
+            self.body.setOutline("brown4")
+            self.body.setFill("brown4")
+
+        return self.alive # returns if the organism is alive
+        
             
 
-    def wander(self):
+    def wander(self): # returns if successful
+        # wandering saps energy, the larger the mass, the more energy sapped
+        # energy (kinetic) can be measured by (mv^2)/2
+        # but that would sap too much, so well use a multiplyer, Δ
+        # e(w) = (Δ(πr^2)v^2)/2 = (Δmv^2)/2
         global speedMult
         speed = self.speed * speedMult
-        try:
-            #print(self.direction)
-            angleRadians = self.direction * ((math.pi) / 180)
-            xMovement = speed * math.cos(angleRadians)
-            yMovement = speed * math.sin(angleRadians)
-            self.body.move(xMovement, yMovement)
-            position = self.body.getCenter()
-            if position.getX() <= 5 or position.getX() >= 745:
-                xMovement = -xMovement
-                #print("X Movement: ", xMovement)
-                #print("Y Movement: ", yMovement)
-                #print("X Coord: ", position.getX())
-                #print("Y Coord: ", position.getY())
-                #print("-------------x-----------------")
-                #print("-------------------------------")
-                #print("-------------------------------")
+        # calculate energy to sap
+        energyToSap = (0.005 * self.mass * (self.speed * self.speed)) / 2 # Δ is taken as 0.005
+        if self.energy > energyToSap: # sufficent energy avilable
+            try:
+                #print(self.direction)
+                self.energy -= energyToSap
+                angleRadians = self.direction * ((math.pi) / 180)
+                xMovement = speed * math.cos(angleRadians)
+                yMovement = speed * math.sin(angleRadians)
+                self.body.move(xMovement, yMovement)
+                position = self.body.getCenter()
+                if position.getX() <= 5 or position.getX() >= 745:
+                    xMovement = -xMovement
+                    #print("X Movement: ", xMovement)
+                    #print("Y Movement: ", yMovement)
+                    #print("X Coord: ", position.getX())
+                    #print("Y Coord: ", position.getY())
+                    #print("-------------x-----------------")
+                    #print("-------------------------------")
+                    #print("-------------------------------")
+                    
+                elif position.getY() <= 5 or position.getY() >= 745:
+                    yMovement = -yMovement
+                    #print("X Movement: ", xMovement)
+                    #print("Y Movement: ", yMovement)
+                    #print("X Coord: ", position.getX())
+                    #print("Y Coord: ", position.getY())
+                    #print("-------------y-----------------")
+                    #print("-------------------------------")
+                    #print("-------------------------------")
+                    
                 
-            elif position.getY() <= 5 or position.getY() >= 745:
-                yMovement = -yMovement
-                #print("X Movement: ", xMovement)
-                #print("Y Movement: ", yMovement)
-                #print("X Coord: ", position.getX())
-                #print("Y Coord: ", position.getY())
-                #print("-------------y-----------------")
-                #print("-------------------------------")
-                #print("-------------------------------")
+                newDirection = math.atan2(yMovement, xMovement)
+                self.direction = (180 * newDirection) / math.pi
+                return True
                 
-            
-            newDirection = math.atan2(yMovement, xMovement)
-            self.direction = (180 * newDirection) / math.pi
-        except(Exception):
-            #do nothing
-            print("err")
+            except(Exception):
+                #do nothing
+                print("err")
+        return False
             
         
     def getColor(self):
@@ -195,6 +231,8 @@ def renderStats(environment):
     lblX.draw(environment)
     lblY = getText(Point(798, 380), "Y-Coord:")
     lblY.draw(environment)
+    lblEnergy = getText(Point(793, 410), "Energy:")
+    lblEnergy.draw(environment)
 
     stats = [] # array of stats
 
@@ -233,6 +271,10 @@ def renderStats(environment):
     x = getText(Point(1000, 380), "-")
     x.draw(environment)
     stats.append(x) # index 8
+
+    energy = getText(Point(1000, 410), "-")
+    energy.draw(environment)
+    stats.append(energy) # index 9
 
     return stats
     
@@ -273,6 +315,7 @@ def searchForOrganism(x, y, organisms, stats):
     stats[6].setText("%.3f" % organism.mass)
     stats[7].setText("%.3f" % organism.body.getCenter().getX())
     stats[8].setText("%.3f" % organism.body.getCenter().getY())
+    stats[9].setText("%.3f" % organism.energy)
     organism.body.setOutline("green")
     return organism
     
@@ -285,7 +328,7 @@ def resetLocalStats(stats):
         stats[index].setText("-")
         
 
-def mouseAction(x, y, running, environment, organisms, stats):
+def mouseAction(x, y, running, environment, organisms, stats, organism):
     global speedMult
     # mouse has been pressed
     if (x >= 835 and x <= 865 and y >= 685 and y <= 715):
@@ -294,22 +337,22 @@ def mouseAction(x, y, running, environment, organisms, stats):
         speedMult *= 0.5
         if speedMult < 0.03125:
             speedMult = 0.03125 # cap at 0.03125
-        return running, None
+        return running, organism
     elif (x >= 885 and x <= 915 and y >= 685 and y <= 715):
         # pause/play
         updateButton(running, environment)
         if running:
             # change button to play
-            return False, None
+            return False, organism
         # change button to pause
-        return True, None
+        return True, organism
     elif (x >= 935 and x <= 965 and y >= 685 and y <= 715):
         # speed up
         #print("speed up pressed")
         speedMult *= 2
         if speedMult > 64:
             speedMult = 64.0 # cap at 64
-        return running, None
+        return running, organism
     else:
         organism = searchForOrganism(x, y, organisms, stats)
         # search for organism, update stats
@@ -337,9 +380,10 @@ def spawn(environment, n):
 
 def main():
     global speedMult
+    noOfOrganisms = 60
     environment = createEnvironment()
     stats = renderStats(environment) # changable stats are outputted as an array
-    organisms = spawn(environment, 50)
+    organisms = spawn(environment, noOfOrganisms)
     count = 0
     organism = None
     running = True
@@ -354,19 +398,23 @@ def main():
                 stats[5].setText("%.3f" % organism.speed)
                 stats[7].setText("%.3f" % organism.body.getCenter().getX())
                 stats[8].setText("%.3f" % organism.body.getCenter().getY())
+                stats[9].setText("%.3f" % organism.energy)
             # -----------------
-            organisms[count % 50].wander()
+            isAlive = organisms[count % noOfOrganisms].run()
+            if not isAlive:
+                organisms.remove(organisms[count % noOfOrganisms])
+                noOfOrganisms -= 1 # current orgaism has died, leaving a tasty corpse
             count += 1
             # check for mouse clicks
             mouseClick = environment.checkMouse()
             if mouseClick != None: # else continue
-                running, organism = mouseAction(mouseClick.getX(), mouseClick.getY(), running, environment, organisms, stats)
+                running, organism = mouseAction(mouseClick.getX(), mouseClick.getY(), \
+                                                running, environment, organisms, stats, organism)
         stats[1].setText("Paused")
         mouseClick = environment.checkMouse()
         if mouseClick != None: # else continue
-            running, organism = mouseAction(mouseClick.getX(), mouseClick.getY(), running, environment, organisms, stats)
+            running, organism = mouseAction(mouseClick.getX(), mouseClick.getY(), \
+                                            running, environment, organisms, stats, organism)
         
-
-    # render the environment, then wait for clicks
 
 main()
