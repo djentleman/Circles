@@ -16,7 +16,8 @@ class Organism:
     def __init__(self, spawn, environment):
         self.spawn = spawn
         self.radius = (random.random() * 6) + 1  # radius is random for now
-        self.mass = math.pi * (self.radius * self.radius)
+        self.mass = math.pi * (self.radius * self.radius) # area
+        self.surfaceArea = 2 * math.pi * self.radius
         self.energy = random.randint(80, 120) # start off at ~100 energy (ultimatley this will be determined in genome)
         # everything uses energy, having keen vision saps energy more than awful vision
         # this is effectivley the thing that drives the organisms, energy can be gained
@@ -44,11 +45,14 @@ class Organism:
         self.body.draw(self.environment)
         self.getColor()
 
-    def run(self):
+    def move(self):
         # looks at surroundings, then does something
         # THINKING GOES HERE
-
-        success = self.wander()
+        think = random.random() # more intellegent than dave
+        if think > 0.1:
+            success = self.wander()
+        else:
+            success = self.changeDirection(random.randint(-30, 30))
 
 
 
@@ -63,6 +67,18 @@ class Organism:
             self.body.setFill("brown4")
 
         return self.alive # returns if the organism is alive
+
+    def changeDirection(self, change):
+        # energy turning is protpotional to the surface area
+        # and the angle being turned
+        # it will be taken as mθ, and a multiplier, Δ
+        # e(t) = Δ(2πr)|πθ/180| = Δs|πθ/180|
+        energyToSap = 0.005 * self.surfaceArea * abs((change * math.pi) / 180)
+        if self.energy > energyToSap: # sufficent energy avilable
+            self.direction += change
+            self.energy -= energyToSap
+            return True
+        return False
         
             
 
@@ -392,7 +408,7 @@ def main():
             #update stats
             stats[0].setText(len(organisms))
             stats[1].setText(str(speedMult) + "x")
-            if organism != None and (count % 10 == 0):
+            if organism != None and (count % 20 == 0):
                 # this is a critical area - only important stats go here
                 stats[4].setText(str("%.3f" % organism.direction) + "°")
                 stats[5].setText("%.3f" % organism.speed)
@@ -400,7 +416,7 @@ def main():
                 stats[8].setText("%.3f" % organism.body.getCenter().getY())
                 stats[9].setText("%.3f" % organism.energy)
             # -----------------
-            isAlive = organisms[count % noOfOrganisms].run()
+            isAlive = organisms[count % noOfOrganisms].move()
             if not isAlive:
                 organisms.remove(organisms[count % noOfOrganisms])
                 noOfOrganisms -= 1 # current orgaism has died, leaving a tasty corpse
