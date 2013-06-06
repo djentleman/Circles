@@ -32,9 +32,10 @@ class Organism:
         if genderSeed > 0.5: # weighting will be decided in genome
             self.isMale = True # 50% chance of being male for now
             
-        aggRand1 = random.randint(1, int(255 ** 0.5))
-        aggRand2 = random.randint(1, int(255 ** 0.5))
+        aggRand1 = random.randint(1, int(120 ** 0.5)) # start off with max agression
+        aggRand2 = random.randint(1, int(120 ** 0.5)) # as 120, changes with hunger
         self.aggressionIndex = aggRand1 * aggRand2 # produces bell curve
+        self.aggression = float(self.aggressionIndex) # float version of agression index
         # aggression will be determined in genome (and hunger), with some random element
         # random for now
         
@@ -46,6 +47,8 @@ class Organism:
         self.getColor()
 
     def move(self):
+        start = self.energy
+        
         # looks at surroundings, then does something
         # THINKING GOES HERE
         think = random.random() # more intellegent than dave
@@ -55,11 +58,29 @@ class Organism:
             success = self.changeDirection(random.randint(-30, 30))
 
 
-
         
         if not success: # not success = nothing happened
             # sap some energy for idling
             self.energy -= 0.0005
+
+
+                        
+        end = self.energy
+        energyChange = end - start
+        # change aggression based on energy change
+
+        # if energy increases, agression decreases
+        # therefore, change in aggression is protional to -change in energy
+
+        self.aggression += (-energyChange)
+        self.aggressionIndex = int(self.aggression)
+        
+        if self.aggressionIndex > 255:
+            self.aggressionIndex = 255
+        elif self.aggressionIndex < 1:
+            self.aggressionIndex = 1 # stops hex color from crashing
+
+        # update outline colour here (unless it's green)
 
         if self.energy <= 0:
             self.alive = False
@@ -67,6 +88,7 @@ class Organism:
             self.body.setFill("brown4")
 
         return self.alive # returns if the organism is alive
+
 
     def changeDirection(self, change):
         # energy turning is protpotional to the surface area
@@ -419,8 +441,11 @@ def main():
             #update stats
             stats[0].setText(len(organisms))
             stats[1].setText(str(speedMult) + "x")
+
             if organism != None and (count % 20 == 0):
                 # this is a critical area - only important stats go here
+                # modularize this out at some point (it's recycled code)
+                stats[3].setText(organism.aggressionIndex)
                 stats[4].setText(str("%.3f" % organism.direction) + "°")
                 stats[5].setText("%.3f" % organism.speed)
                 stats[7].setText("%.3f" % organism.body.getCenter().getX())
