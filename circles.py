@@ -215,6 +215,17 @@ def drawInterface(environment):
     drawButton(environment, "| |", 900, 700)
     drawButton(environment, "»", 950, 700)
 
+    # draw sight reticule - within the box, you will be able to see what the
+    # focused circle sees
+    sight = Rectangle(Point(770, 600), Point(1030, 605))
+    sight.setOutline("white")
+    sight.draw(environment)
+
+    upperReticule = getLine(Point(900, 600), Point(900, 580))
+    upperReticule.draw(environment)
+    lowerReticule = getLine(Point(900, 605), Point(900, 625))
+    lowerReticule.draw(environment)
+
 def renderStats(environment):
     lblGenerals = getText(Point(900, 70), "General Stats")
     lblGenerals.draw(environment)
