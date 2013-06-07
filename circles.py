@@ -27,6 +27,7 @@ class Organism:
         self.environment = environment
         self.speed = random.random() #will be decided in genome
         self.direction = random.randint(1, 360)
+        self.focused = False # focused organisms have stats on display
         genderSeed = random.random()
         self.isMale = False
         if genderSeed > 0.5: # weighting will be decided in genome
@@ -38,9 +39,15 @@ class Organism:
         self.aggression = float(self.aggressionIndex) # float version of agression index
         # aggression will be determined in genome (and hunger), with some random element
         # random for now
-        
+    
+    def focus(self):
+        self.body.setOutline("green")
+        self.focused = True
 
-        
+    def unfocus(self):
+        self.body.setOutline(color_rgb(self.aggressionIndex, 0, 0))
+        self.focused = False
+                
 
     def set(self):
         self.body.draw(self.environment)
@@ -71,9 +78,12 @@ class Organism:
 
         # if energy increases, agression decreases
         # therefore, change in aggression is protional to -change in energy
-
+        oldAggression = self.aggressionIndex
+        
         self.aggression += (-energyChange)
         self.aggressionIndex = int(self.aggression)
+
+        newAggression = self.aggressionIndex
         
         if self.aggressionIndex > 255:
             self.aggressionIndex = 255
@@ -81,6 +91,11 @@ class Organism:
             self.aggressionIndex = 1 # stops hex color from crashing
 
         # update outline colour here (unless it's green)
+        if newAggression != oldAggression:
+            # colour has changed
+            if not self.focused:
+                # cant be focused (green)
+                self.body.setOutline(color_rgb(self.aggressionIndex, 0, 0))
 
         if self.energy <= 0:
             self.alive = False
@@ -365,12 +380,12 @@ def searchForOrganism(x, y, organisms, stats):
     stats[7].setText("%.3f" % organism.body.getCenter().getX())
     stats[8].setText("%.3f" % organism.body.getCenter().getY())
     stats[9].setText("%.3f" % organism.energy)
-    organism.body.setOutline("green")
+    organism.focus()
     return organism
     
 def resetColours(organisms):
     for organism in organisms:
-         organism.body.setOutline(color_rgb(organism.aggressionIndex, 0, 0))
+         organism.unfocus()
         
 def resetLocalStats(stats):
     for index in range(2, len(stats)):
