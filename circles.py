@@ -442,10 +442,38 @@ def spawn(environment, n):
         organism.set()
     return organisms
 
+def generateCluster(x, y, environment, allFood):
+    # generate a cluster of food around x and y
+    amountOfFood = random.randint(1, 150)
+    maxSpread = random.randint(3, 30) # radius of spread
+    for i in range(amountOfFood):
+        spreadX = random.randint(-maxSpread, maxSpread)
+        spreadY = random.randint(-maxSpread, maxSpread)
+        food = Point(x + spreadX, y + spreadY)
+        food.setFill(color_rgb(0, 255, 255))
+        if (food.getX() < 751):
+            food.draw(environment)
+            allFood.append(food)
+    return allFood
+
+def generateFood(environment):
+    # generates food in random areas
+    # food is all rgb(0, 255, 255) for now
+    allFood = []
+
+    numberOfClusters = random.randint(3, 10)
+    for i in range(numberOfClusters):
+        randX = random.randint(0, 750)
+        randY = random.randint(0, 750)
+        allFood = generateCluster(randX, randY, environment, allFood)
+    print(allFood)
+    return allFood
+
 def main():
     global speedMult
     noOfOrganisms = 60
     environment = createEnvironment()
+    food = generateFood(environment) # food = array of all food
     stats = renderStats(environment) # changable stats are outputted as an array
     organisms = spawn(environment, noOfOrganisms)
     count = 0
