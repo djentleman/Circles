@@ -7,7 +7,7 @@ from graphics import *
 from threading import *
 
 s = Semaphore() # implements mutal exclusion
-speedMult = 1.0 # speed multiplier - global (for now)
+speedMult = 0.5 # speed multiplier - global (for now)
 
 class Organism:
     # circle class - the digital organism itself
@@ -27,6 +27,8 @@ class Organism:
         self.environment = environment
         self.speed = random.random() #will be decided in genome
         self.direction = random.randint(1, 360)
+        self.visionRadius = random.randint(20, 90)
+        self.visionDistance = random.randint(50, 200)
         self.focused = False # focused organisms have stats on display
         genderSeed = random.random()
         self.isMale = False
@@ -59,12 +61,12 @@ class Organism:
         # looks at surroundings, then does something
         # THINKING GOES HERE
         think = random.random() # more intellegent than dave
-        if think > 0.1:
-            success = self.wander()
-        else:
-            success = self.changeDirection(random.randint(-30, 30))
+        #if think > 0.1:
+        success = self.wander()
+        #else:
+            #success = self.changeDirection(random.randint(-30, 30))
 
-
+        self.look(organisms)
         
         if not success: # not success = nothing happened
             # sap some energy for idling
@@ -104,6 +106,37 @@ class Organism:
 
         return self.alive # returns if the organism is alive
 
+    def look(self, organisms):
+        centerPoint = self.body.getCenter()
+        circleX = centerPoint.getX()
+        circleY = centerPoint.getY()
+        for i in range(len(organisms) - 1): 
+            iCenter = organisms[i].body.getCenter()
+            iX = iCenter.getX()
+            iY = iCenter.getY()
+            if iX != circleX and iY != circleY:
+                distX = circleX-iX
+                distY = circleY-iY
+                distance = ((distX ** 2) + (distY ** 2)) ** 0.5 #find the hypotenuse
+                angleTo = math.atan2(distY, distX) # find angle between circles
+                if self.focused == True:
+                    radiusRadians = self.visionRadius * ((math.pi) / 180)
+                    directionRadians = self.direction * ((math.pi) / 180)
+                    visionTriangleLeftX = circleX + (self.visionDistance * math.cos(directionRadians + (radiusRadians / 2)))
+                    visionTriangleLeftY = circleY + (self.visionDistance * math.sin(directionRadians + (radiusRadians / 2)))
+                    visionTriangleRightX = circleX + (self.visionDistance * math.cos(directionRadians - (radiusRadians / 2)))
+                    visionTriangleRightY = circleY + (self.visionDistance * math.sin(directionRadians - (radiusRadians / 2)))
+                    visionTriangle = Polygon(Point(circleX,circleY), Point(visionTriangleLeftX, visionTriangleLeftY), Point(visionTriangleRightX, visionTriangleRightY))
+                    visionTriangle.setFill("white")
+                    visionTriangle.draw(self.environment)
+                    visionTriangle.undraw()
+                if distance <= self.visionDistance and angleTo >= self.direction - self.visionRadius and angleTo <= self.direction + self.visionRadius:
+                    #organism has been spotted
+                    if self.focused == True:      
+                        print("spotted", i)
+                        #print(self.visionDistance)
+                        #print(self.visionRadius)
+        
 
     def changeDirection(self, change):
         # energy turning is protpotional to the surface area
@@ -471,11 +504,12 @@ def generateFood(environment):
 
 def main():
     global speedMult
-    noOfOrganisms = 60
+    global organisms
+    noOfOrganisms = 30
     environment = createEnvironment()
+    organisms = spawn(environment, noOfOrganisms)
     food = generateFood(environment) # food = array of all food
     stats = renderStats(environment) # changable stats are outputted as an array
-    organisms = spawn(environment, noOfOrganisms)
     count = 0
     organism = None
     running = True
