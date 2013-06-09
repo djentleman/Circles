@@ -253,7 +253,7 @@ class FoodCluster:
     def generateCluster(self):
         # generate an initial cluster of food around x and y
         allFood = []
-        initFood = random.randint(1, 150)
+        initFood = random.randint(1, 50)
         for i in range(initFood):
             food = self.generateFood()
             allFood.append(food)
@@ -540,14 +540,24 @@ def generateFood(environment):
     # generates food in random areas
     # food is all rgb(0, 255, 255) for now
     allFood = []
+    clusters = []
 
-    numberOfClusters = random.randint(3, 10)
+    numberOfClusters = random.randint(6, 10)
     for i in range(numberOfClusters):
         randX = random.randint(0, 750)
         randY = random.randint(0, 750)
         cluster = FoodCluster(randX, randY, environment)
         food = cluster.generateCluster()
         allFood = food + allFood
+        clusters.append(cluster)
+        
+    return allFood, clusters
+
+def growOneFood(clusters):
+    randomClusterID = random.randint(0, len(clusters) - 1)
+    cluster = clusters[randomClusterID]
+    return cluster.generateFood()
+    
 
 def main():
     global speedMult
@@ -555,13 +565,17 @@ def main():
     noOfOrganisms = 30
     environment = createEnvironment()
     organisms = spawn(environment, noOfOrganisms)
-    food = generateFood(environment) # food = array of all food
+    food, clusters = generateFood(environment) # food = array of all food
     stats = renderStats(environment) # changable stats are outputted as an array
     count = 0
     organism = None
     running = True
     while True: # organisms don't move when not running
         while running:
+            # random food growth
+            newFood = growOneFood(clusters)
+            food.append(newFood)
+            #####################
             #update stats
             stats[0].setText(len(organisms))
             stats[1].setText(str(speedMult) + "x")
