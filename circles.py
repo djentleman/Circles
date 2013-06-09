@@ -39,7 +39,7 @@ class Organism:
         self.body = Circle(spawn, self.radius)
         self.alive = True # turns false when dead
         self.environment = environment
-        self.speed = random.random() #will be decided in genome
+        self.speed = random.random() / 2 #will be decided in genome
         self.direction = random.randint(1, 360)
         self.visionRadius = random.randint(20, 90)
         self.visionDistance = random.randint(50, 200)
@@ -119,9 +119,9 @@ class Organism:
 
     def moveTowards(self, angle):
         if angle > self.direction + 2:
-            self.direction = self.direction - 1
-        elif angle < self.direction - 2:
             self.direction = self.direction + 1
+        elif angle < self.direction - 2:
+            self.direction = self.direction - 1
         
 
     def look(self, organisms):
@@ -392,8 +392,9 @@ def main():
     running = True
     while True: # organisms don't move when not running
         while running:
+            start = time.clock()
             # random food growth
-            growFood(food)
+            #growFood(food)
             #####################
             #update stats
             stats[0].setText(len(organisms))
@@ -419,7 +420,15 @@ def main():
             if mouseClick != None: # else continue
                 running, organism = mouseAction(mouseClick.getX(), mouseClick.getY(), \
                                                 running, environment, organisms, stats, organism)
-        stats[1].setText("Paused")
+            end = time.clock()
+            timeTaken = end - start # time taken to process 1 organism
+            timeTaken *= noOfOrganisms
+            fps = 1 / timeTaken
+            #print(fps)
+            stats[10].setText("%.1f" % fps + "FPS")
+
+            
+        stats[1].setText("Paused") # update
         mouseClick = environment.checkMouse()
         if mouseClick != None: # else continue
             running, organism = mouseAction(mouseClick.getX(), mouseClick.getY(), \

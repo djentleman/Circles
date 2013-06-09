@@ -130,6 +130,11 @@ def renderStats(environment):
     energy.draw(environment)
     stats.append(energy) # index 9
 
+    fps = getText(Point(30, 10), "- FPS")
+    fps.setSize(10) 
+    fps.draw(environment)
+    stats.append(fps) # index 10
+
     return stats
 
 def updateButton(pausing, environment):
