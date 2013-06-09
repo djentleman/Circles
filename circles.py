@@ -22,6 +22,7 @@ class Organism:
         # everything uses energy, having keen vision saps energy more than awful vision
         # this is effectivley the thing that drives the organisms, energy can be gained
         # by eating food, or other organisms
+        self.activity = "wonder" #the organism is currently 'doing' something
         self.body = Circle(spawn, self.radius)
         self.alive = True # turns false when dead
         self.environment = environment
@@ -61,6 +62,7 @@ class Organism:
         # looks at surroundings, then does something
         self.look(organisms)
         # THINKING GOES HERE
+        
         think = random.random() # more intellegent than dave
         if think > 0.1:
             success = self.wander()
@@ -106,10 +108,41 @@ class Organism:
 
         return self.alive # returns if the organism is alive
 
+    def moveTowards(self, angle):
+        if angle > self.direction + 2:
+            self.direction = self.direction - 1
+        elif angle < self.direction - 2:
+            self.direction = self.direction + 1
+        
+
     def look(self, organisms):
         centerPoint = self.body.getCenter()
         circleX = centerPoint.getX()
         circleY = centerPoint.getY()
+        for i in range(len(food) - 1):
+            iFood = food[i]
+            iX = iFood.body.getX()
+            iY = iFood.body.getY()
+            distX = circleX - iX
+            distY = circleY - iY
+
+            distance = math.hypot(distX, distY)
+            angleTo = math.degrees(math.atan2(distY, distX))
+
+            angleTo += 180
+            angleTo = math.radians(angleTo)
+
+            if self.direction < 0:
+                self.direction += 360
+            radiusRadians = math.radians(self.visionRadius)
+            directionRadians = math.radians(self.direction)
+
+            if distance <= self.visionDistance and (angleTo >= directionRadians - (radiusRadians/2)) and (angleTo <= directionRadians + (radiusRadians/2)):
+                print("found food")
+                self.moveTowards(angleTo)
+
+
+        #find other organisms
         for i in range(len(organisms) - 1): 
             iCenter = organisms[i].body.getCenter()
             iX = iCenter.getX()
@@ -243,7 +276,7 @@ class Food:
 class FoodCluster:
     # foodSource generates lots of food from set coords
     def __init__(self, x, y, environment):
-        self.maxSpread = random.randint(3, 30) # radius of spread
+        self.maxSpread = random.randint(3, 5) # radius of spread
         self.x = x
         self.y = y
         self.environment = environment
@@ -542,7 +575,7 @@ def generateFood(environment):
     allFood = []
     clusters = []
 
-    numberOfClusters = random.randint(6, 10)
+    numberOfClusters = random.randint(1,2)
     for i in range(numberOfClusters):
         randX = random.randint(0, 750)
         randY = random.randint(0, 750)
@@ -562,9 +595,10 @@ def growOneFood(clusters):
 def main():
     global speedMult
     global organisms
-    noOfOrganisms = 30
+    noOfOrganisms = 10
     environment = createEnvironment()
     organisms = spawn(environment, noOfOrganisms)
+    global food
     food, clusters = generateFood(environment) # food = array of all food
     stats = renderStats(environment) # changable stats are outputted as an array
     count = 0
