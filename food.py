@@ -27,20 +27,20 @@ class Food:
 
     def getEaten(self):
         self.radius -= 0.05
-        self.body = Circle(Point(self.x, self.y), self.radius)
-        self.body.setFill(color_rgb(0, self.nutrition, self.nutrition))
+
         if self.radius < 0:
             # food has died
             self.body.undraw()
             # remove from all lists
             self.eaten = True
         else:
-            self.body.undraw()
-            self.body.redraw(self.environment)
+            self.body = Circle(Point(self.x, self.y), self.radius)
+            self.body.setFill(color_rgb(0, self.nutrition, self.nutrition))
+            #self.body.undraw()
 
     def grow(self):
         self.radius += 0.05
         self.body = Circle(Point(self.x, self.y), self.radius)
         self.body.setFill(color_rgb(0, self.nutrition, self.nutrition))
-        self.body.undraw()
+        #self.body.undraw()
         self.body.draw(self.environment)

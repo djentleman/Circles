@@ -372,7 +372,7 @@ def generateFood(environment):
 
 def growFood(food):
     rand = random.random()
-    if rand > 0.9:
+    if rand > 0.95:
         randomFoodID = random.randint(0, len(food) - 1)
         current = food[randomFoodID]
         current.grow()
@@ -381,7 +381,7 @@ def growFood(food):
 def main():
     global speedMult
     global organisms
-    noOfOrganisms = 30
+    noOfOrganisms = 20
     environment = createEnvironment()
     organisms = spawn(environment, noOfOrganisms)
     global food
@@ -394,7 +394,7 @@ def main():
         while running:
             start = time.clock()
             # random food growth
-            #growFood(food)
+            growFood(food)
             #####################
             #update stats
             stats[0].setText(len(organisms))
