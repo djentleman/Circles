@@ -119,12 +119,12 @@ class Organism:
         centerPoint = self.body.getCenter()
         circleX = centerPoint.getX()
         circleY = centerPoint.getY()
-        for i in range(len(food) - 1):
-            iFood = food[i]
-            iX = iFood.body.getX()
-            iY = iFood.body.getY()
-            distX = circleX - iX
-            distY = circleY - iY
+        for i in range(len(clusters) - 1):
+            cluster = clusters[i]
+            iX = cluster.x
+            iY = cluster.y
+            distX = circleX - (iX - cluster.maxSpread)
+            distY = circleY - (iY - cluster.maxSpread)
 
             distance = math.hypot(distX, distY)
             angleTo = math.degrees(math.atan2(distY, distX))
@@ -276,7 +276,7 @@ class Food:
 class FoodCluster:
     # foodSource generates lots of food from set coords
     def __init__(self, x, y, environment):
-        self.maxSpread = random.randint(3, 5) # radius of spread
+        self.maxSpread = random.randint(3, 35) # radius of spread
         self.x = x
         self.y = y
         self.environment = environment
@@ -286,7 +286,7 @@ class FoodCluster:
     def generateCluster(self):
         # generate an initial cluster of food around x and y
         allFood = []
-        initFood = random.randint(1, 50)
+        initFood = random.randint(1, 5)
         for i in range(initFood):
             food = self.generateFood()
             allFood.append(food)
@@ -599,6 +599,7 @@ def main():
     environment = createEnvironment()
     organisms = spawn(environment, noOfOrganisms)
     global food
+    global clusters
     food, clusters = generateFood(environment) # food = array of all food
     stats = renderStats(environment) # changable stats are outputted as an array
     count = 0
