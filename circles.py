@@ -61,10 +61,10 @@ class Organism:
         # looks at surroundings, then does something
         # THINKING GOES HERE
         think = random.random() # more intellegent than dave
-        #if think > 0.1:
-        success = self.wander()
-        #else:
-            #success = self.changeDirection(random.randint(-30, 30))
+        if think > 0.1:
+            success = self.wander()
+        else:
+            success = self.changeDirection(random.randint(-30, 30))
 
         self.look(organisms)
         
@@ -117,11 +117,21 @@ class Organism:
             if iX != circleX and iY != circleY:
                 distX = circleX-iX
                 distY = circleY-iY
-                distance = ((distX ** 2) + (distY ** 2)) ** 0.5 #find the hypotenuse
-                angleTo = math.atan2(distY, distX) # find angle between circles
-                if self.focused == True:
-                    radiusRadians = self.visionRadius * ((math.pi) / 180)
-                    directionRadians = self.direction * ((math.pi) / 180)
+                
+                distance = math.hypot(distX, distY)#find the hypotenuse
+                angleTo = math.degrees(math.atan2(distY, distX)) # find angle between circles
+                
+                angleTo += 180
+                angleTo = math.radians(angleTo)
+                #if (distY < 0):
+                #   angleTo = angleTo + math.pi
+                if self.direction < 0:
+                    self.direction += 360
+                radiusRadians = math.radians(self.visionRadius)
+                directionRadians = math.radians(self.direction)
+                #print(self.direction)
+
+                if self.focused == True:                 
                     visionTriangleLeftX = circleX + (self.visionDistance * math.cos(directionRadians + (radiusRadians / 2)))
                     visionTriangleLeftY = circleY + (self.visionDistance * math.sin(directionRadians + (radiusRadians / 2)))
                     visionTriangleRightX = circleX + (self.visionDistance * math.cos(directionRadians - (radiusRadians / 2)))
@@ -130,12 +140,14 @@ class Organism:
                     visionTriangle.setFill("white")
                     visionTriangle.draw(self.environment)
                     visionTriangle.undraw()
-                if distance <= self.visionDistance and angleTo >= self.direction - self.visionRadius and angleTo <= self.direction + self.visionRadius:
+                    
+                if distance <= self.visionDistance and (angleTo >= directionRadians - (radiusRadians/2)) and (angleTo <= directionRadians + (radiusRadians/2)):
                     #organism has been spotted
-                    if self.focused == True:      
-                        print("spotted", i)
-                        #print(self.visionDistance)
-                        #print(self.visionRadius)
+                    if self.focused == True:
+                        #organisms[i].focused = True
+                        print("spotted")
+                        print(i)
+                            
         
 
     def changeDirection(self, change):
