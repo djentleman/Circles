@@ -7,7 +7,7 @@ from graphics import *
 from threading import *
 
 s = Semaphore() # implements mutal exclusion
-speedMult = 0.5 # speed multiplier - global (for now)
+speedMult = 1 # speed multiplier - global (for now)
 
 class Organism:
     # circle class - the digital organism itself
@@ -59,6 +59,7 @@ class Organism:
         start = self.energy
         
         # looks at surroundings, then does something
+        self.look(organisms)
         # THINKING GOES HERE
         think = random.random() # more intellegent than dave
         if think > 0.1:
@@ -66,7 +67,6 @@ class Organism:
         else:
             success = self.changeDirection(random.randint(-30, 30))
 
-        self.look(organisms)
         
         if not success: # not success = nothing happened
             # sap some energy for idling
@@ -140,13 +140,15 @@ class Organism:
                     visionTriangle.setFill("white")
                     visionTriangle.draw(self.environment)
                     visionTriangle.undraw()
+
+                    # update sight reticule
                     
-                if distance <= self.visionDistance and (angleTo >= directionRadians - (radiusRadians/2)) and (angleTo <= directionRadians + (radiusRadians/2)):
+                #if distance <= self.visionDistance and (angleTo >= directionRadians - (radiusRadians/2)) and (angleTo <= directionRadians + (radiusRadians/2)):
                     #organism has been spotted
-                    if self.focused == True:
+                    #if self.focused == True:
                         #organisms[i].focused = True
-                        print("spotted")
-                        print(i)
+                    #    print("spotted")
+                    #    print(i)
                             
         
 
@@ -219,6 +221,52 @@ class Organism:
         self.body.setFill("pink3")
         if self.isMale:
             self.body.setFill("blue")
+
+
+class Food:
+    # food class, gets eaten when or organism touches it, and transfers
+    # it's tasty nutrition
+    def __init__(self, x, y, nutrition, environment):
+        self.x = x
+        self.y = y
+        self.nutrition = nutrition
+        self.environment = environment
+        self.eaten = False
+        self.body = Point(x, y)
+        self.body.setFill(color_rgb(0, nutrition, nutrition))
+        self.body.draw(environment)
+
+    def getEaten(self):
+        self.body.undraw()
+        #remove from any lists
+
+class FoodCluster:
+    # foodSource generates lots of food from set coords
+    def __init__(self, x, y, environment):
+        self.maxSpread = random.randint(3, 30) # radius of spread
+        self.x = x
+        self.y = y
+        self.environment = environment
+        self.nutrition = random.randint(20, 150)
+
+
+    def generateCluster(self):
+        # generate an initial cluster of food around x and y
+        allFood = []
+        initFood = random.randint(1, 150)
+        for i in range(initFood):
+            food = self.generateFood()
+            allFood.append(food)
+        return allFood # returns array of food
+
+    def generateFood(self):
+        # generates one piece of food in the cluster
+        spreadX = random.randint(-self.maxSpread, self.maxSpread)
+        spreadY = random.randint(-self.maxSpread, self.maxSpread)
+        food = Food(self.x + spreadX, self.y + spreadY, self.nutrition, self.environment)
+        # initing food draws it
+        return food # returns the food
+                
         
             
 
@@ -487,19 +535,6 @@ def spawn(environment, n):
         organism.set()
     return organisms
 
-def generateCluster(x, y, environment, allFood):
-    # generate a cluster of food around x and y
-    amountOfFood = random.randint(1, 150)
-    maxSpread = random.randint(3, 30) # radius of spread
-    for i in range(amountOfFood):
-        spreadX = random.randint(-maxSpread, maxSpread)
-        spreadY = random.randint(-maxSpread, maxSpread)
-        food = Point(x + spreadX, y + spreadY)
-        food.setFill(color_rgb(0, 255, 255))
-        if (food.getX() < 751):
-            food.draw(environment)
-            allFood.append(food)
-    return allFood
 
 def generateFood(environment):
     # generates food in random areas
@@ -510,9 +545,9 @@ def generateFood(environment):
     for i in range(numberOfClusters):
         randX = random.randint(0, 750)
         randY = random.randint(0, 750)
-        allFood = generateCluster(randX, randY, environment, allFood)
-    print(allFood)
-    return allFood
+        cluster = FoodCluster(randX, randY, environment)
+        food = cluster.generateCluster()
+        allFood = food + allFood
 
 def main():
     global speedMult
