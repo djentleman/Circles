@@ -1,6 +1,5 @@
           
-
-
+   
 # library imports
 import time
 import random
@@ -143,38 +142,4 @@ def updateButton(pausing, environment):
     else:
         # change button to pause
         drawButton(environment, "| |", 900, 700)
-
-            
-def createEnvironment():
-    environment = GraphWin("Circles", 1050, 750)
-    environment.setBackground("black")
-
-    drawInterface(environment)
-
-    return environment
-
-def spawn(environment, n):
-    organisms = []
-    for i in range(n):
-        organism = Organism(Point(100, 100), environment)
-        organisms.append(organism)
-        organism.set()
-    return organisms
-
-
-def generateFood(environment):
-    # generates food in random areas
-    # food is all rgb(0, 255, 255) for now
-    allFood = []
-    clusters = []
-
-    numberOfClusters = random.randint(6,10)
-    for i in range(numberOfClusters):
-        randX = random.randint(0, 750)
-        randY = random.randint(0, 750)
-        cluster = FoodCluster(randX, randY, environment)
-        food = cluster.generateCluster()
-        allFood = food + allFood
-        clusters.append(cluster)
-        
-    return allFood, clusters
+    

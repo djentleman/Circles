@@ -76,11 +76,7 @@ class Organism:
         self.look(organisms)
         # THINKING GOES HERE
         
-        think = random.random() # more intellegent than dave
-        if think > 0.1:
-            success = self.wander()
-        else:
-            success = self.changeDirection(random.randint(-30, 30))
+        success = self.wander()
 
         
         if not success: # not success = nothing happened
@@ -132,12 +128,12 @@ class Organism:
         centerPoint = self.body.getCenter()
         circleX = centerPoint.getX()
         circleY = centerPoint.getY()
-        for i in range(len(clusters) - 1):
-            cluster = clusters[i]
-            iX = cluster.x
-            iY = cluster.y
-            distX = circleX - (iX - cluster.maxSpread)
-            distY = circleY - (iY - cluster.maxSpread)
+        for index in range(len(food) - 1):
+            current = food[index]
+            iX = current.x
+            iY = current.y
+            distX = circleX - (iX - current.radius)
+            distY = circleY - (iY - current.radius)
 
             distance = math.hypot(distX, distY)
             angleTo = math.degrees(math.atan2(distY, distX))
@@ -151,7 +147,7 @@ class Organism:
             directionRadians = math.radians(self.direction)
 
             if distance <= self.visionDistance and (angleTo >= directionRadians - (radiusRadians/2)) and (angleTo <= directionRadians + (radiusRadians/2)):
-                print("found food")
+                #print("found food")
                 self.moveTowards(angleTo)
 
 
@@ -364,34 +360,32 @@ def generateFood(environment):
     # generates food in random areas
     # food is all rgb(0, 255, 255) for now
     allFood = []
-    clusters = []
 
-    numberOfClusters = random.randint(6,10)
+    numberOfClusters = random.randint(20, 45)
     for i in range(numberOfClusters):
         randX = random.randint(0, 750)
         randY = random.randint(0, 750)
-        cluster = FoodCluster(randX, randY, environment)
-        food = cluster.generateCluster()
-        allFood = food + allFood
-        clusters.append(cluster)
+        food = Food(randX, randY, environment)
+        allFood.append(food)
         
-    return allFood, clusters
+    return allFood
 
-def growOneFood(clusters):
-    randomClusterID = random.randint(0, len(clusters) - 1)
-    cluster = clusters[randomClusterID]
-    return cluster.generateFood()
+def growFood(food):
+    rand = random.random()
+    if rand > 0.9:
+        randomFoodID = random.randint(0, len(food) - 1)
+        current = food[randomFoodID]
+        current.grow()
     
 
 def main():
     global speedMult
     global organisms
-    noOfOrganisms = 10
+    noOfOrganisms = 30
     environment = createEnvironment()
     organisms = spawn(environment, noOfOrganisms)
     global food
-    global clusters
-    food, clusters = generateFood(environment) # food = array of all food
+    food = generateFood(environment) # food = array of all food
     stats = renderStats(environment) # changable stats are outputted as an array
     count = 0
     organism = None
@@ -399,8 +393,7 @@ def main():
     while True: # organisms don't move when not running
         while running:
             # random food growth
-            newFood = growOneFood(clusters)
-            food.append(newFood)
+            growFood(food)
             #####################
             #update stats
             stats[0].setText(len(organisms))
