@@ -35,7 +35,8 @@ class Organism:
         # everything uses energy, having keen vision saps energy more than awful vision
         # this is effectivley the thing that drives the organisms, energy can be gained
         # by eating food, or other organisms
-        self.activity = "wonder" #the organism is currently 'doing' something
+        self.target = None
+        self.activity = "wander" #the organism is currently 'doing' something
         self.body = Circle(spawn, self.radius)
         self.alive = True # turns false when dead
         self.environment = environment
@@ -75,9 +76,15 @@ class Organism:
         # looks at surroundings, then does something
         self.look(organisms)
         # THINKING GOES HERE
-        
-        success = self.wander()
 
+        success = False
+
+        if self.activity == "wander":
+            success = self.wander()
+        elif self.activity == "eat":
+            success = self.eatFood(self.target)
+        else:
+            success = True
         
         if not success: # not success = nothing happened
             # sap some energy for idling
@@ -97,7 +104,7 @@ class Organism:
         self.aggressionIndex = int(self.aggression)
 
         newAggression = self.aggressionIndex
-        
+
         if self.aggressionIndex > 255:
             self.aggressionIndex = 255
         elif self.aggressionIndex < 1:
@@ -117,13 +124,23 @@ class Organism:
 
         return self.alive # returns if the organism is alive
 
-    def moveTowards(self, angle):
+    def moveTowards(self, angle, food):
         self.direction = angle
         centerPoint = self.body.getCenter()
         circleX = centerPoint.getX()
         circleY = centerPoint.getY()
-        if circleX == food.x and circleY == food.y:
-            print("got the food!")
+        if circleX + self.radius >= food.x - food.radius and circleX - self.radius <= food.x + food.radius:
+            if circleY + self.radius >= food.y - food.radius and circleY - self.radius <= food.y + food.radius:
+                self.target = food
+                self.activity = "eat"
+
+    def eatFood(self, food):
+        if food.nutrition > 0:
+            self.energy = self.energy + 2
+            food.nutrition = food.nutrition - 2
+        else:
+            self.activity = "wander"
+        return True
         
               
 
@@ -150,9 +167,11 @@ class Organism:
             directionRadians = math.radians(self.direction)
 
             if distance <= self.visionDistance and (angleTo >= directionRadians - (radiusRadians/2)) and (angleTo <= directionRadians + (radiusRadians/2)):
-                self.moveTowards(math.degrees(angleTo), food[index])
-                if self.focused == True:
-                    print("found food")
+                if current.nutrition > 2:
+                    self.moveTowards(math.degrees(angleTo), food[index])
+                    
+                    if self.focused == True:
+                        print("found food")
 
 
         #find other organisms
