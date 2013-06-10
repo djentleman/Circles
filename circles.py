@@ -118,11 +118,14 @@ class Organism:
         return self.alive # returns if the organism is alive
 
     def moveTowards(self, angle):
-        if angle > self.direction + 2:
-            self.direction = self.direction + 1
-        elif angle < self.direction - 2:
-            self.direction = self.direction - 1
+        self.direction = angle
+        centerPoint = self.body.getCenter()
+        circleX = centerPoint.getX()
+        circleY = centerPoint.getY()
+        if circleX == food.x and circleY == food.y:
+            print("got the food!")
         
+              
 
     def look(self, organisms):
         centerPoint = self.body.getCenter()
@@ -147,8 +150,9 @@ class Organism:
             directionRadians = math.radians(self.direction)
 
             if distance <= self.visionDistance and (angleTo >= directionRadians - (radiusRadians/2)) and (angleTo <= directionRadians + (radiusRadians/2)):
-                #print("found food")
-                self.moveTowards(angleTo)
+                self.moveTowards(math.degrees(angleTo), food[index])
+                if self.focused == True:
+                    print("found food")
 
 
         #find other organisms
