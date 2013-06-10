@@ -143,7 +143,7 @@ class Organism:
                 food.remove(foodToEat)
                 print("food eaten first time")
             except(Exception):
-                self.action = "wonder"
+                self.activity = "wander"
                 print("food eaten twice")
         else:
             foodToEat.getEaten()
