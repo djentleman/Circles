@@ -83,6 +83,8 @@ class Organism:
             success = self.wander()
         elif self.activity == "eat":
             success = self.eatFood(self.target)
+        elif self.activity == "chase":
+            success = self.chase(self.target)
         else:
             success = True
         
@@ -134,6 +136,25 @@ class Organism:
                 self.target = food
                 self.activity = "eat"
 
+    def chase(self, angle, target):
+        self.direction = angle
+        centerPoint = self.body.getCenter()
+        circleX = centerPoint.getX()
+        circleY = centerPoint.getY()
+        targetCenter = target.body.getCenter()
+        targetX = targetCenter.getX()
+        targetY = targetCenter.getY()
+        
+        if circleX + self.radius >= targetX - target.radius and circleX - self.radius <= targetX + target.radius:
+            if circleY + self.radius >= targetY - target.radius and circleY - self.radius <= targetY + target.radius:
+                self.target = None
+                self.activity = "wander"
+                self.energy = self.energy + target.energy
+                target.energy = 0
+                
+
+        
+    
     def eatFood(self, foodToEat):
         eaten = foodToEat.eaten
         if eaten:
@@ -217,12 +238,9 @@ class Organism:
 
                     # update sight reticule
                     
-                #if distance <= self.visionDistance and (angleTo >= directionRadians - (radiusRadians/2)) and (angleTo <= directionRadians + (radiusRadians/2)):
-                    #organism has been spotted
-                    #if self.focused == True:
-                        #organisms[i].focused = True
-                    #    print("spotted")
-                    #    print(i)
+                if distance <= self.visionDistance and (angleTo >= directionRadians - (radiusRadians/2)) and (angleTo <= directionRadians + (radiusRadians/2)):
+                    if self.aggression > organisms[i].aggression and organisms[i].alive == True:
+                        self.chase (math.degrees(angleTo), organisms[i])
                             
         
 
@@ -382,7 +400,9 @@ def createEnvironment():
 def spawn(environment, n):
     organisms = []
     for i in range(n):
-        organism = Organism(Point(100, 100), environment)
+        spawnX = random.randint(10, 490)
+        spawnY = random.randint(10, 490)
+        organism = Organism(Point(spawnX, spawnY), environment)
         organisms.append(organism)
         organism.set()
     return organisms
