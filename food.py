@@ -21,22 +21,28 @@ class Food:
         if (x < 750):
             self.body = Circle(Point(x, y), self.radius)
             self.body.setFill(color_rgb(0, self.nutrition, self.nutrition))
-            self.body.draw(environment)
+            self.body.draw(self.environment)
 
     # current re-sizing method inefficent
 
     def getEaten(self):
-        self.radius -= 0.05
+        if not self.eaten:
+            self.radius -= 0.05
+            #print(self.radius)
 
-        if self.radius < 0:
-            # food has died
-            self.body.undraw()
-            # remove from all lists
-            self.eaten = True
+            if self.radius < 0:
+                # food has died
+                self.body.undraw()
+                # remove from all lists
+                self.eaten = True
+            else:
+                self.body = Circle(Point(self.x, self.y), self.radius)
+                self.body.setFill(color_rgb(0, self.nutrition, self.nutrition))
+                self.body.undraw()
+                self.body.draw(self.environment)
         else:
-            self.body = Circle(Point(self.x, self.y), self.radius)
-            self.body.setFill(color_rgb(0, self.nutrition, self.nutrition))
-            #self.body.undraw()
+            print("food already eaten")
+        return self.eaten # returns if the food is eaten
 
     def grow(self):
         self.radius += 0.05

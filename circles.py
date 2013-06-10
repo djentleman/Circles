@@ -134,13 +134,22 @@ class Organism:
                 self.target = food
                 self.activity = "eat"
 
-    def eatFood(self, food):
-        if food.nutrition > 0:
-            self.energy = self.energy + 2
-            food.nutrition = food.nutrition - 2
+    def eatFood(self, foodToEat):
+        eaten = foodToEat.eaten
+        if eaten:
+            # food has been eaten
+            foodToEat.body.undraw() # just to be sure
+            try:
+                food.remove(foodToEat)
+                print("food eaten first time")
+            except(Exception):
+                self.action = "wonder"
+                print("food eaten twice")
         else:
-            self.activity = "wander"
-        return True
+            foodToEat.getEaten()
+            self.energy += (foodToEat.nutrition / 500)
+        print(len(food))
+            
         
               
 
