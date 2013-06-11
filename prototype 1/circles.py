@@ -433,7 +433,7 @@ def growFood(food):
 def main():
     global speedMult
     global organisms
-    noOfOrganisms = 20
+    noOfOrganisms = 115
     environment = createEnvironment()
     organisms = spawn(environment, noOfOrganisms)
     global food
