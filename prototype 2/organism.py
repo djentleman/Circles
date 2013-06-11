@@ -39,13 +39,17 @@ class Organism:
         rayX = self.actualX
         rayY = self.actualY
         for i in range(self.sightRange):
-            # range is measured in pixels
-            rayX += math.cos(rayDirection)
-            rayY += math.sin(rayDirection)
-           # print(rayX, rayY)
-            color = self.environment.get_at((int(rayX), int(rayY)))
-            if color != (0, 0, 0, 255) and color != (255, 255, 255, 255):
-                return color # seen something
+            try:
+                # range is measured in pixels
+                rayX += math.cos(rayDirection)
+                rayY += math.sin(rayDirection)
+                # print(rayX, rayY)
+                color = self.environment.get_at((int(rayX), int(rayY)))
+                if color != (0, 0, 0, 255) and color != (255, 255, 255, 255):
+                    return color # seen something
+            except (Exception):
+                # out of bounds error
+                return rgb(255, 255, 255) # wall!
         return rgb(0, 0, 0) # black
             
         
