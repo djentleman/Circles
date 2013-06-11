@@ -41,14 +41,14 @@ class Organism:
             shellColor = rgb(0, 255, 0)
         
         pygame.draw.circle(self.environment, shellColor,
-                           (self.x, self.y), self.radius + 2, 2)
+                           (self.x, self.y), self.radius + 1, 2)
 
-    def move(self):
-        # make it bounce
+    def move(self, playSpeed):
+        speed = self.speed * playSpeed
 
-        
-        yComponent = math.sin(self.direction) * self.speed
-        xComponent = math.cos(self.direction) * self.speed
+        yComponent = math.sin(self.direction) * speed
+        xComponent = math.cos(self.direction) * speed
+        #wall collision detection goes here
         self.actualY += yComponent
         self.actualX += xComponent
         self.x = int(self.actualX)
