@@ -5,12 +5,22 @@ import math
 from graphics import *
 from threading import *
 
+
 class Chromosome:
     # chromosome class, every circle has one!
     # chromosome contains lots genes, which change over generations
     # genome is fixed length, made of one chromosome
     def __init__(self, genome):
-        self.genome = genome # array of genes
+        self.genome = genome # array of genotypes
+
+    def displayGenome(self):
+        print(self.genome)
+
+    def getGenomeLength(self):
+        return (len(self.genome))
+
+    def getGene(self, index):
+        return (self.genome[index])
 
     def mutate(self):
         # pick random gene
@@ -23,12 +33,14 @@ class Gene:
     # and a phenotype it is tied to
     #genotype is expressed a boolean tuple
     
-    def __init__(self, name, genotype, phenotype):
+    def __init__(self, name, phenotype):
         self.name = name # eg. long legged
-        self.genotype = genotype # eg. (False, True) - aA
         self.phenotype = phenotype # an array of everything this
         # gene effects, and how much it effects it, stored as tuples
         # eg. [("speed", 1.1), ("HP", 0.95), ...., ]
+
+    def getPheno(self):
+        return self.phenotype
 
     def mutate(self):
         rand = random.random() # generate float between 1 and 0
@@ -39,4 +51,59 @@ class Gene:
             # effect genotype
             genoRand1 = random.randint(0,1)
             genoRand2 = random.randint(0,1)
-            self.genotype = (bool(genoRand1), bool(genoRand2))
+            
+def generateRandomChromosome(genes):
+
+    genome = []
+    
+    for i in range(len(genes)):
+        geneL1 = random.randint(0,1)
+        geneL2 = random.randint(0,1)
+        genome.append((geneL1, geneL2))
+
+    return Chromosome(genome)
+        
+        
+def breed (parent1, parent2, genomeLength):
+    newGenome = []
+    for i in range(genomeLength): 
+        newGene = punnett(parent1.getGene(i), parent2.getGene(i))
+        newGenome.append(newGene)
+    return(newGenome)
+        
+def punnett(g1, g2):
+
+    sections = []
+    sections.append((g1[0], g2[0]))
+    sections.append((g1[0], g2[1]))
+    sections.append((g1[1], g2[0]))
+    sections.append((g1[1], g2[1]))
+
+    sectionToChoose = random.randint(0, 3)
+    return (sections[sectionToChoose])
+
+
+def generateGenes():
+    geneIndex = []
+    gene = Gene("gene1", [("speed", 10)])
+    geneIndex.append(gene)
+    gene = Gene("gene2", [("speed", 10)])
+    geneIndex.append(gene)
+    gene = Gene("gene3", [("speed", 10)])
+    geneIndex.append(gene)
+    gene = Gene("gene4", [("speed", 10)])
+    geneIndex.append(gene)
+    gene = Gene("gene5", [("speed", 10)])
+    geneIndex.append(gene)
+    gene = Gene("gene6", [("speed", 10)])
+    geneIndex.append(gene)
+    gene = Gene("gene7", [("speed", 10)])
+    geneIndex.append(gene)
+    gene = Gene("gene8", [("speed", 10)])
+    geneIndex.append(gene)
+    gene = Gene("gene9", [("speed", 10)])
+    geneIndex.append(gene)
+    gene = Gene("gene10", [("speed", 10), ("radius", 5)])
+    geneIndex.append(gene)
+
+    return geneIndex

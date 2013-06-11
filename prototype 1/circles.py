@@ -18,6 +18,7 @@ from threading import *
 
 s = Semaphore() # implements mutal exclusion
 speedMult = 1 # speed multiplier - global (for now)
+genes = generateGenes()
 
 
 
@@ -26,8 +27,9 @@ class Organism:
     # circle class - the digital organism itself
     # phenotypes are attributes, eg: speed, vision...
     # ultimatley each organism will be running on a seperate thread
-    def __init__(self, spawn, environment):
+    def __init__(self, spawn, chromosome, environment):
         self.spawn = spawn
+        self.chromosome = chromosome
         self.radius = (random.random() * 6) + 1  # radius is random for now
         self.mass = math.pi * (self.radius * self.radius) # area
         self.surfaceArea = 2 * math.pi * self.radius
@@ -56,6 +58,17 @@ class Organism:
         self.aggression = float(self.aggressionIndex) # float version of agression index
         # aggression will be determined in genome (and hunger), with some random element
         # random for now
+
+    def genetics(self):
+        for gene in range(self.chromosome.getGenomeLength()):
+            #for effect in range(len(self.chromosome.getGene(gene))):
+            thisGene = self.chromosome.getGene(gene)
+            if thisGene[0] == 1 and thisGene[1] == 1:
+                for effects in range(len(genes[gene].getPheno())):
+                    pheno = genes[gene].getPheno()
+                    print(pheno[effects][0])
+                    print(pheno[effects][1])
+            
     
     def focus(self):
         self.body.setOutline("green")
@@ -67,8 +80,10 @@ class Organism:
                 
 
     def set(self):
+        self.genetics()
         self.body.draw(self.environment)
         self.getColor()
+        
 
     def move(self):
         start = self.energy
@@ -402,7 +417,8 @@ def spawn(environment, n):
     for i in range(n):
         spawnX = random.randint(10, 490)
         spawnY = random.randint(10, 490)
-        organism = Organism(Point(spawnX, spawnY), environment)
+        chromosome = generateRandomChromosome(genes)
+        organism = Organism(Point(spawnX, spawnY), chromosome, environment)
         organisms.append(organism)
         organism.set()
     return organisms
