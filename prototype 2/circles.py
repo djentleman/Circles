@@ -58,6 +58,7 @@ def runSim():
 
         
         for event in pygame.event.get(): # this makes it stable!
+            print("event")
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
