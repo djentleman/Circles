@@ -19,8 +19,37 @@ class Organism:
         self.speed = random.random() + 0.25
         self.energy = 100.0
 
+        self.sightRays = 10 # number of rays in sight
+        self.sightRange = 25 # range of each ray
+        self.sightWidth = 60 # how wide the vision is in degrees
+
+        # keen vision: lots of rays with a small width - probably high depth
+        # unkeen: less dense ray population over a large area, probably low depth
+
     def focus(self):
         self.isFocused = True
+
+    def traceRay(self, direction):
+        # traces one ray, and retuens the color found in that direction
+        # white is invisible
+        # append this color to an array - get a circle eyed view of the world
+        # direction = direction ray is traveling
+        # actual direction = direction + self.direction
+        rayDirection = self.direction + direction
+        rayX = self.actualX
+        rayY = self.actualY
+        for i in range(self.sightRange):
+            # range is measured in pixels
+            rayX += math.cos(rayDirection)
+            rayY += math.sin(rayDirection)
+           # print(rayX, rayY)
+            color = self.environment.get_at((int(rayX), int(rayY)))
+            if color != (0, 0, 0, 255) and color != (255, 255, 255, 255):
+                return color # seen something
+        return rgb(0, 0, 0) # black
+            
+        
+        
 
     def unFocus(self):
         self.isFocused = False

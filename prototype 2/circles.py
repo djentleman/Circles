@@ -17,7 +17,7 @@ def runSim():
     
     stats = [0, 0, "-", "-", "-", "-", "-", "-", "-", "-", "-"]
 
-    noOfOrganisms = 200
+    noOfOrganisms = 10
     stats[0] = (noOfOrganisms)
     playSpeed = 1.0
     paused = False
@@ -58,7 +58,6 @@ def runSim():
 
         
         for event in pygame.event.get(): # this makes it stable!
-            print("event")
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
