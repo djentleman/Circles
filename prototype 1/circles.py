@@ -42,7 +42,7 @@ class Organism:
         self.body = Circle(spawn, self.radius)
         self.alive = True # turns false when dead
         self.environment = environment
-        self.speed = random.random() / 2 #will be decided in genome
+        self.speed = 0.1 #will be decided in genome
         self.direction = random.randint(1, 360)
         self.visionRadius = random.randint(20, 90)
         self.visionDistance = random.randint(50, 200)
@@ -66,8 +66,10 @@ class Organism:
             if thisGene[0] == 1 and thisGene[1] == 1:
                 for effects in range(len(genes[gene].getPheno())):
                     pheno = genes[gene].getPheno()
-                    print(pheno[effects][0])
-                    print(pheno[effects][1])
+                    #print(pheno[effects][0])
+                    #print(pheno[effects][1])
+                    if(pheno[effects][0] == "speed"):
+                        self.speed = self.speed * pheno[effects][1]
             
     
     def focus(self):
@@ -449,7 +451,7 @@ def growFood(food):
 def main():
     global speedMult
     global organisms
-    noOfOrganisms = 20
+    noOfOrganisms = 115
     environment = createEnvironment()
     organisms = spawn(environment, noOfOrganisms)
     global food
