@@ -17,7 +17,7 @@ def runSim():
     
     stats = [0, 0, "-", "-", "-", "-", "-", "-", "-", "-", "-"]
 
-    noOfOrganisms = 10
+    noOfOrganisms = 20
     stats[0] = (noOfOrganisms)
     playSpeed = 1.0
     paused = False
@@ -100,7 +100,8 @@ def runSim():
         for organism in organisms:
             # organism does it's stuff
             if not paused:
-                organism.move(playSpeed)
+                organism.move(playSpeed)#
+                organism.traceRay(0)
             organism.draw()
 
         #update stats

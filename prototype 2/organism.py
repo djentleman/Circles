@@ -20,7 +20,7 @@ class Organism:
         self.energy = 100.0
 
         self.sightRays = 10 # number of rays in sight
-        self.sightRange = 25 # range of each ray
+        self.sightRange = 40 # range of each ray
         self.sightWidth = 60 # how wide the vision is in degrees
 
         # keen vision: lots of rays with a small width - probably high depth
@@ -35,7 +35,9 @@ class Organism:
         # append this color to an array - get a circle eyed view of the world
         # direction = direction ray is traveling
         # actual direction = direction + self.direction
-        rayDirection = self.direction + direction
+
+        # trif is done in radians - fix this!
+        rayDirection = ((math.pi * self.direction) / 180) + ((math.pi * direction) / 180)
         rayX = self.actualX
         rayY = self.actualY
         for i in range(self.sightRange):
@@ -47,6 +49,9 @@ class Organism:
                 color = self.environment.get_at((int(rayX), int(rayY)))
                 if color != (0, 0, 0, 255) and color != (255, 255, 255, 255):
                     return color # seen something
+                if self.isFocused:
+                    # show tracing path
+                    self.environment.set_at((int(rayX), int(rayY)), rgb(0, 255, 0))
             except (Exception):
                 # out of bounds error
                 return rgb(255, 255, 255) # wall!
@@ -78,9 +83,10 @@ class Organism:
 
     def move(self, playSpeed):
         speed = self.speed * playSpeed
+        direction = (math.pi * self.direction) / 180
 
-        yComponent = math.sin(self.direction) * speed
-        xComponent = math.cos(self.direction) * speed
+        yComponent = math.sin(direction) * speed
+        xComponent = math.cos(direction) * speed
         #wall collision detection goes here
         self.actualY += yComponent
         self.actualX += xComponent
