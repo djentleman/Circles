@@ -44,13 +44,38 @@ def renderLocalStats(environment, stats):
     drawText(environment, str(stats[10]), 850, 330, 12)
 
 def initInputs(environment):
-    drawText(environment, "Inputs", 720, 160, 18)
+    drawText(environment, "Inputs", 745, 160, 18)
+    # sight reticule from v1.0
+    drawText(environment, "Sight:", 660, 220, 12)
+    pygame.draw.rect(environment, rgb(255, 255, 255),
+                     (675, 250, 200, 5), 1)
+    pygame.draw.line(environment, rgb(255, 255, 255),
+                     (775, 250), (775, 235), 2)
+    pygame.draw.line(environment, rgb(255, 255, 255),
+                     (775, 255), (775, 270), 2)
 
 def initGenetics(environment):
     drawText(environment, "Genetics", 720, 160, 18)
 
 def initGraphs(environment):
-    drawText(environment, "Graphs", 720, 160, 18)
+    drawText(environment, "Graphs", 740, 160, 18)
+    pygame.draw.line(environment, rgb(255, 255, 255),
+                     (700, 200), (700, 360), 2)
+    pygame.draw.line(environment, rgb(255, 255, 255),
+                     (690, 350), (850, 350), 2)
+    # graph is rendered using a pixelarray
+
+    # buttons
+    drawGraphSelect(environment, "Speed", 710, 400, True)
+    drawGraphSelect(environment, "Aggression", 710, 430, False)
+    drawGraphSelect(environment, "Energy", 710, 460, False)
+    drawGraphSelect(environment, "Direction", 840, 400, False)
+    drawGraphSelect(environment, "Mass", 840, 430, False)
+    drawGraphSelect(environment, "Radius", 840, 460, False)
+    
+    
+    
+    
 
 def initNothing(environment):
     drawText(environment, "None", 720, 160, 18)
