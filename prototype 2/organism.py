@@ -38,13 +38,11 @@ class Organism:
 
         # trif is done in radians - fix this!
         rayDirection = ((math.pi * self.direction) / 180) + ((math.pi * direction) / 180)
-        rayX = self.actualX
-        rayY = self.actualY
+        rayX = self.actualX + (self.radius * math.cos(rayDirection))
+        rayY = self.actualY + (self.radius * math.sin(rayDirection))
         for i in range(self.sightRange):
             try:
                 # range is measured in pixels
-                rayX += math.cos(rayDirection)
-                rayY += math.sin(rayDirection)
                 # print(rayX, rayY)
                 color = self.environment.get_at((int(rayX), int(rayY)))
                 if color != (0, 0, 0, 255) and color != (255, 255, 255, 255):
@@ -52,6 +50,8 @@ class Organism:
                 if self.isFocused:
                     # show tracing path
                     self.environment.set_at((int(rayX), int(rayY)), rgb(0, 255, 0))
+                rayX += math.cos(rayDirection)
+                rayY += math.sin(rayDirection)
             except (Exception):
                 # out of bounds error
                 return rgb(255, 255, 255) # wall!

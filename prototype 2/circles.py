@@ -17,11 +17,12 @@ def runSim():
     
     stats = [0, 0, "-", "-", "-", "-", "-", "-", "-", "-", "-"]
 
-    noOfOrganisms = 20
+    noOfOrganisms = 50
     stats[0] = (noOfOrganisms)
     playSpeed = 1.0
     paused = False
     stats[1] = (playSpeed)
+    panelType = 0
 
 
     organisms = []
@@ -49,7 +50,8 @@ def runSim():
                          (650, 550), (900, 550), 2)
       
 
-        initStats(environment)
+        initStats(environment) # inits globals
+        initSidePanel(environment, panelType)
 
 
         
@@ -87,12 +89,17 @@ def runSim():
                     # state has changed
                     break # pause button pressed
                 
+                oldPanelType = panelType
+                panelType = handlePanelTypeChange(mousex, mousey, panelType)
+                newPanelType = panelType
+                if not (newPanelType == oldPanelType):
+                    # one of these buttons was pressed
+                    break
                 
-                #either speed or slow pressed
-                #possivley put effect on button
                 focus = checkForOrganism(mousex, mousey, organisms)
                 #print(mousex, mousey)
-        stats = updateLocalStats(focus, stats)
+                
+
 
         
         drawButtons(environment, paused) # buttons mightbe hovering
@@ -102,10 +109,14 @@ def runSim():
             if not paused:
                 organism.move(playSpeed)#
                 organism.traceRay(0)
+                organism.traceRay(1)
+                organism.traceRay(2)
             organism.draw()
 
         #update stats
-        renderStats(environment, stats)
+        stats = updateLocalStats(focus, stats)
+        renderStats(environment, stats) # globals
+        renderSidePanel(environment, panelType, stats)
 
 
             

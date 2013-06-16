@@ -10,11 +10,12 @@ def drawText(environment, msg, x, y, size):
     msgSurfaceObj = fontObj.render(msg, False, rgb(255, 255, 255))
     environment.blit(msgSurfaceObj, (x, y))
 
-def drawButton(environment, msg, x, y):
+def drawButton(environment, msg, x, y, width, height):
     # add possible hover/focus animation
     pygame.draw.rect(environment, rgb(255, 255, 255),
-                     (x - 20, y - 20, 40, 40), 1)
-    drawText(environment, msg, x - 8, y - 10, 18)
-    
+                     (x - 20, y - 20, width, height), 1)
+    drawText(environment, msg, x - int(width / 5), y - int(height / 4), 18)
+    # text positioning needs work
+
     
     
