@@ -6,6 +6,7 @@ from pygame.locals import *
 from organism import *
 from pygame_util import *
 from interface import *
+from food import *
 
 
 def runSim():    
@@ -15,13 +16,16 @@ def runSim():
     environment = pygame.display.set_mode((900, 650))
     pygame.display.set_caption('Circles v1.1')
     
-    stats = [0, 0, "-", "-", "-", "-", "-", "-", "-", "-", "-"]
+    stats = [0, 0, 0, "-", "-", "-", "-", "-", "-", "-", "-", "-"]
+    #all the stats will be contained in the OO interface
 
-    noOfOrganisms = 50
+    noOfOrganisms = 15
+    noOfPlants = 50
     stats[0] = (noOfOrganisms)
+    stats[1] = (noOfPlants)
     playSpeed = 1.0
     paused = False
-    stats[1] = (playSpeed)
+    stats[2] = (playSpeed)
     panelType = 0
 
 
@@ -31,6 +35,14 @@ def runSim():
         randY = random.randint(0, 650)
         organism = Organism(randX, randY, environment)
         organisms.append(organism)
+
+    plants = []
+    for i in range(noOfPlants):
+        randX = random.randint(0, 650)
+        randY = random.randint(0, 650)
+        plant = Plant(randX, randY, environment)
+        plants.append(plant)
+        
 
 
     white = rgb(255, 255, 255)
@@ -72,7 +84,7 @@ def runSim():
                 
                 oldPlaySpeed = playSpeed
                 playSpeed = handlePlaySpeedChange(mousex, mousey, playSpeed)
-                stats[1] = playSpeed
+                stats[2] = playSpeed
                 newPlaySpeed = playSpeed
                 if not (newPlaySpeed == oldPlaySpeed):
                     # apply any neccecary caps
@@ -81,9 +93,9 @@ def runSim():
                 oldPaused = paused
                 paused = handlePauseButton(mousex, mousey, paused)
                 if paused:
-                    stats[1] = "Paused"
+                    stats[2] = "Paused"
                 else:
-                    stats[1] = playSpeed
+                    stats[2] = playSpeed
                 newPaused = paused
                 if not (newPaused == oldPaused):
                     # state has changed
@@ -109,9 +121,13 @@ def runSim():
             if not paused:
                 organism.move(playSpeed)#
                 organism.traceRay(0)
-                organism.traceRay(1)
-                organism.traceRay(2)
             organism.draw()
+
+        for plant in plants:
+            #plant does it's stuff
+            if not paused:
+                plant.grow()
+            plant.draw()
 
         #update stats
         stats = updateLocalStats(focus, stats)
@@ -126,7 +142,7 @@ def runSim():
         fpsClock.tick(60) # runs at 60 frames, this decides how fluid the program is
 
         end = time.clock()
-        stats[2] = ("%.2f" % float(1 / (end - start)))
+        stats[3] = ("%.2f" % float(1 / (end - start)))
 
 
 def main():

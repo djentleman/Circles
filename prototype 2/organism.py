@@ -9,6 +9,7 @@ class Organism:
         self.actualX = float(x)
         self.actualY = float(y)
         self.radius = random.randint(1, 10)
+        self.actualRadius = float(self.radius)
         self.mass = math.pi * (self.radius * self.radius)
         self.aggressionIndex = random.randint(1, 255)
         self.aggression = float(self.aggressionIndex)
