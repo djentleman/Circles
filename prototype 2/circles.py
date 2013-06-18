@@ -19,7 +19,7 @@ def runSim():
     stats = [0, 0, 0, "-", "-", "-", "-", "-", "-", "-", "-", "-"]
     #all the stats will be contained in the OO interface
 
-    noOfOrganisms = 15
+    noOfOrganisms = 20
     noOfPlants = 50
     stats[0] = (noOfOrganisms)
     stats[1] = (noOfPlants)
@@ -38,9 +38,13 @@ def runSim():
 
     plants = []
     for i in range(noOfPlants):
+        isPoison = random.random()
         randX = random.randint(0, 650)
         randY = random.randint(0, 650)
-        plant = Plant(randX, randY, environment)
+        if isPoison < 0.92:
+            plant = Plant(randX, randY, environment)
+        else:
+            plant = PoisonPlant(randX, randY, environment)
         plants.append(plant)
         
 
@@ -139,7 +143,7 @@ def runSim():
         
         # tell stuff to move
         pygame.display.update() # update display
-        fpsClock.tick(60) # runs at 60 frames, this decides how fluid the program is
+        fpsClock.tick(60) # runs at 60 frames max, this decides how fluid the program is
 
         end = time.clock()
         stats[3] = ("%.2f" % float(1 / (end - start)))
