@@ -59,6 +59,8 @@ def initInputs(environment):
 def initGenetics(environment):
     drawText(environment, "Genetics", 720, 160, 18)
 
+    drawGraphSelect(environment, "Highlight Species", 750, 470, 140, False)
+
 def initGraphs(environment):
     drawText(environment, "Graphs", 740, 160, 18)
     pygame.draw.line(environment, rgb(255, 255, 255),
@@ -68,12 +70,12 @@ def initGraphs(environment):
     # graph is rendered using a pixelarray
 
     # buttons
-    drawGraphSelect(environment, "Speed", 710, 400, True)
-    drawGraphSelect(environment, "Aggression", 710, 430, False)
-    drawGraphSelect(environment, "Energy", 710, 460, False)
-    drawGraphSelect(environment, "Direction", 840, 400, False)
-    drawGraphSelect(environment, "Mass", 840, 430, False)
-    drawGraphSelect(environment, "Radius", 840, 460, False)
+    drawGraphSelect(environment, "Speed", 710, 400, 90, True)
+    drawGraphSelect(environment, "Aggression", 710, 430, 90, False)
+    drawGraphSelect(environment, "Energy", 710, 460, 90, False)
+    drawGraphSelect(environment, "Direction", 840, 400, 90, False)
+    drawGraphSelect(environment, "Mass", 840, 430, 90, False)
+    drawGraphSelect(environment, "Radius", 840, 460, 90, False)
     
     
     
