@@ -21,8 +21,9 @@ def runSim():
 
     noOfOrganisms = 20
     noOfPlants = 50
-    stats[0] = (noOfOrganisms)
-    stats[1] = (noOfPlants)
+    noOfCorpses = 0
+    stats[0] = noOfOrganisms
+    stats[1] = noOfPlants
     playSpeed = 1.0
     paused = False
     stats[2] = (playSpeed)
@@ -35,6 +36,8 @@ def runSim():
         randY = random.randint(0, 650)
         organism = Organism(randX, randY, environment)
         organisms.append(organism)
+
+    corpses = []
 
     plants = []
     for i in range(noOfPlants):
@@ -123,15 +126,29 @@ def runSim():
         for organism in organisms:
             # organism does it's stuff
             if not paused:
-                organism.move(playSpeed)#
-                organism.traceRay(0)
+                alive = organism.move(playSpeed)
+                if not alive:
+                    # organism has died
+                    corpse = organism.getCorpse()
+                    organisms.remove(organism)
+                    corpses.append(corpse)
             organism.draw()
 
         for plant in plants:
             #plant does it's stuff
             if not paused:
                 plant.grow()
+                if plant.eaten:
+                    plants.remove(plant)
+                
             plant.draw()
+
+        for corpse in corpses:
+            if not paused:
+                alive = not corpse.rot()
+                if not alive:
+                    corpses.remove(corpse)
+            corpse.draw()
 
         #update stats
         stats = updateLocalStats(focus, stats)
@@ -147,6 +164,12 @@ def runSim():
 
         end = time.clock()
         stats[3] = ("%.2f" % float(1 / (end - start)))
+
+        noOfOrganisms = len(organisms)
+        noOfPlants = len(plants)
+        noOfCorpses = len(corpses)
+        stats[0] = noOfOrganisms
+        stats[1] = noOfPlants + noOfCorpses
 
 
 def main():

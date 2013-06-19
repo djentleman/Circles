@@ -1,6 +1,7 @@
 import pygame, sys, time, random, math
 from pygame.locals import *
 from pygame_util import *
+from food import *
 
 class Organism:
     def __init__(self, x, y, environment):
@@ -19,6 +20,7 @@ class Organism:
         self.direction = random.randint(0, 360)
         self.speed = random.random() + 0.25
         self.energy = 100.0
+        self.alive = True
 
         self.sightRays = 10 # number of rays in sight
         self.sightRange = 40 # range of each ray
@@ -26,9 +28,19 @@ class Organism:
 
         # keen vision: lots of rays with a small width - probably high depth
         # unkeen: less dense ray population over a large area, probably low depth
+        self.action = "wander"
+        self.eating = None # once something is being eaten it becomes
+        # an attribute temporarily
+        # stops messy O(n^2) algorithms
+
+        self.poisoned = False # poisoning damages energy heavily
+
 
     def focus(self):
         self.isFocused = True
+
+    def unFocus(self):
+        self.isFocused = False
 
     def traceRay(self, direction):
         # traces one ray, and retuens the color found in that direction
@@ -59,10 +71,13 @@ class Organism:
         return rgb(0, 0, 0) # black
             
         
-        
+    def die(self):
+        self.alive = False
 
-    def unFocus(self):
-        self.isFocused = False
+    def getCorpse(self):
+        corpse = Corpse(self.x, self.y, self.environment, self.radius)
+        return corpse
+
         
 
     def draw(self):
@@ -82,14 +97,51 @@ class Organism:
         pygame.draw.circle(self.environment, shellColor,
                            (self.x, self.y), self.radius + 1, 2)
 
-    def move(self, playSpeed):
+    def wander(self, playSpeed):
         speed = self.speed * playSpeed
-        direction = (math.pi * self.direction) / 180
+        # energy (kinetic) can be measured by (mv^2)/2
+        # but that would sap too much, so well use a multiplyer, η
+        # e(w) = (η(πr^2)v^2)/2 = (ηmv^2)/2
+        energyToSap = (0.005 * self.mass * (self.speed * self.speed)) / 2
+        # η is taken as 0.005
 
-        yComponent = math.sin(direction) * speed
-        xComponent = math.cos(direction) * speed
-        #wall collision detection goes here
-        self.actualY += yComponent
-        self.actualX += xComponent
-        self.x = int(self.actualX)
-        self.y = int(self.actualY)
+        if self.energy > energyToSap:
+            # can sap
+            
+            direction = (math.pi * self.direction) / 180
+
+            yComponent = math.sin(direction) * speed
+            xComponent = math.cos(direction) * speed
+            #wall collision detection goes here
+            self.actualY += yComponent
+            self.actualX += xComponent
+            self.x = int(self.actualX)
+            self.y = int(self.actualY)
+
+            # return energy loss
+            return energyToSap
+        return 0
+
+    def move(self, playSpeed):
+        
+        # one movement
+
+        # seeing goes here
+
+        # thinking goes here
+
+        energyToSap = self.wander(playSpeed)
+
+        if energyToSap != 0:
+            self.energy -= energyToSap
+        else:
+            #idle
+            self.energy -= 0.005
+
+        if self.energy < 0:
+            self.die()
+
+        return self.alive
+            
+
+        

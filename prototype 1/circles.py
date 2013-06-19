@@ -278,8 +278,8 @@ class Organism:
     def wander(self): # returns if successful
         # wandering saps energy, the larger the mass, the more energy sapped
         # energy (kinetic) can be measured by (mv^2)/2
-        # but that would sap too much, so well use a multiplyer, Δ
-        # e(w) = (Δ(πr^2)v^2)/2 = (Δmv^2)/2
+        # but that would sap too much, so well use a multiplyer, η
+        # e(w) = (η(πr^2)v^2)/2 = (ηmv^2)/2
         global speedMult
         speed = self.speed * speedMult
         # calculate energy to sap
