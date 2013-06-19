@@ -16,6 +16,7 @@ def initStats(environment):
     drawText(environment, "Number Of Food Items:", 660, 60, 12)
     drawText(environment, "Play Speed:", 660, 80, 12)
     drawText(environment, "Frame Rate:", 660, 100, 12)
+    drawText(environment, "Simulation Time:", 660, 120, 12)
 
 def renderStats(environment, stats):
     # stats is an array of stats
@@ -23,6 +24,7 @@ def renderStats(environment, stats):
     drawText(environment, str(stats[1]), 850, 60, 12)
     drawText(environment, str(stats[2]), 850, 80, 12)
     drawText(environment, str(stats[3]), 850, 100, 12)
+    drawText(environment, str(stats[4]), 850, 120, 12)
 
 def initLocalStats(environment):
     drawText(environment, "Local Stats", 720, 160, 18)
@@ -36,14 +38,14 @@ def initLocalStats(environment):
     drawText(environment, "Energy:", 660, 330, 12)
 
 def renderLocalStats(environment, stats):
-    drawText(environment, str(stats[4]), 850, 190, 12)
-    drawText(environment, str(stats[5]), 850, 210, 12)
-    drawText(environment, str(stats[6]), 850, 230, 12)
-    drawText(environment, str(stats[7]), 850, 250, 12)
-    drawText(environment, str(stats[8]), 850, 270, 12)
-    drawText(environment, str(stats[9]), 850, 290, 12)
-    drawText(environment, str(stats[10]), 850, 310, 12)
-    drawText(environment, str(stats[11]), 850, 330, 12)
+    drawText(environment, str(stats[5]), 850, 190, 12)
+    drawText(environment, str(stats[6]), 850, 210, 12)
+    drawText(environment, str(stats[7]), 850, 230, 12)
+    drawText(environment, str(stats[8]), 850, 250, 12)
+    drawText(environment, str(stats[9]), 850, 270, 12)
+    drawText(environment, str(stats[10]), 850, 290, 12)
+    drawText(environment, str(stats[11]), 850, 310, 12)
+    drawText(environment, str(stats[12]), 850, 330, 12)
 
 def initInputs(environment):
     drawText(environment, "Inputs", 745, 160, 18)
@@ -101,20 +103,20 @@ def checkForOrganism(x, y, organisms):
 
 def updateLocalStats(focus, stats):
     if focus == None:
-        for i in range(4, len(stats)):
+        for i in range(5, len(stats)):
             stats[i] = "-"
     else:
         if focus.isMale:
-            stats[4] = "Male"
+            stats[5] = "Male"
         else:
-            stats[4] = "Female"
-        stats[5] = "%.2f" % focus.aggression
-        stats[6] = "%.2f" % focus.direction
-        stats[7] = "%.2f" % focus.speed
-        stats[8] = "%.2f" % focus.mass
-        stats[9] = "%.2f" % focus.actualX
-        stats[10] = "%.2f" % focus.actualY
-        stats[11] = "%.2f" % focus.energy
+            stats[5] = "Female"
+        stats[6] = "%.2f" % focus.aggression
+        stats[7] = "%.2f" % focus.direction
+        stats[8] = "%.2f" % focus.speed
+        stats[9] = "%.2f" % focus.mass
+        stats[10] = "%.2f" % focus.actualX
+        stats[11] = "%.2f" % focus.actualY
+        stats[12] = "%.2f" % focus.energy
     #print(stats)
 
     return stats

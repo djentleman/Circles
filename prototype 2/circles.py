@@ -16,7 +16,7 @@ def runSim():
     environment = pygame.display.set_mode((900, 650))
     pygame.display.set_caption('Circles v1.1')
     
-    stats = [0, 0, 0, "-", "-", "-", "-", "-", "-", "-", "-", "-"]
+    stats = [0, 0, 0, 0, "-", "-", "-", "-", "-", "-", "-", "-", "-"]
     #all the stats will be contained in the OO interface
 
     noOfOrganisms = 20
@@ -55,6 +55,7 @@ def runSim():
     white = rgb(255, 255, 255)
 
     focus = None
+    simulationTime = 0
 
     while True:
         start = time.clock()
@@ -162,14 +163,18 @@ def runSim():
         pygame.display.update() # update display
         fpsClock.tick(60) # runs at 60 frames max, this decides how fluid the program is
 
-        end = time.clock()
-        stats[3] = ("%.2f" % float(1 / (end - start)))
+
 
         noOfOrganisms = len(organisms)
         noOfPlants = len(plants)
         noOfCorpses = len(corpses)
         stats[0] = noOfOrganisms
         stats[1] = noOfPlants + noOfCorpses
+
+        end = time.clock()
+        stats[3] = ("%.2f" % float(1 / (end - start)))
+        simulationTime += ((end - start) * playSpeed)
+        stats[4] = ("%.2f" % simulationTime + "s")
 
 
 def main():
