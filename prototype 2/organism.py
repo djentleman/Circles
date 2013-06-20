@@ -133,10 +133,10 @@ class Organism:
         energyToSap = self.wander(playSpeed)
 
         if energyToSap != 0:
-            self.energy -= energyToSap
+            self.energy -= (energyToSap * playSpeed)
         else:
             #idle
-            self.energy -= 0.005
+            self.energy -= (0.005 * playSpeed)
 
         if self.energy < 0:
             self.die()

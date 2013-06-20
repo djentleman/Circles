@@ -138,7 +138,7 @@ def runSim():
         for plant in plants:
             #plant does it's stuff
             if not paused:
-                plant.grow()
+                plant.grow(playSpeed)
                 if plant.eaten:
                     plants.remove(plant)
                 
@@ -146,7 +146,7 @@ def runSim():
 
         for corpse in corpses:
             if not paused:
-                alive = not corpse.rot()
+                alive = not corpse.rot(playSpeed)
                 if not alive:
                     corpses.remove(corpse)
             corpse.draw()

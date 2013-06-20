@@ -28,14 +28,16 @@ class Corpse(Food):
         self.radius = radius
         self.rotLevel = 0
 
-    def rot(self):
-        self.rotLevel = self.rotLevel + 0.5
+    def rot(self, playSpeed):
+        self.rotLevel = self.rotLevel + (0.5 * playSpeed)
         if self.rotLevel > 255:
             self.eaten = True
         return self.eaten # not actually eaten, but it will dissapear here
 
     def getColor(self):
-        return rgb(150, int(self.rotLevel / 2), 10)
+        if self.rotLevel < 500:
+            return rgb(150, int(self.rotLevel / 2), 10)
+        return rgb(0, 0, 0)
 
     def draw(self):
         col = self.getColor()
@@ -48,11 +50,11 @@ class Corpse(Food):
 class Plant(Food):
     def __init__(self, x, y, environment):
         super().__init__(x, y, environment)
-        self.growthRate = (random.random() / 40)
+        self.growthRate = (random.random() / 100)
         # rate at which the organism grows
 
-    def grow(self):
-        self.actualRadius += self.growthRate
+    def grow(self, playSpeed):
+        self.actualRadius += (self.growthRate * playSpeed)
         self.radius = int(self.actualRadius)
     
     def getColor(self):
