@@ -22,9 +22,10 @@ class Organism:
         self.energy = 100.0
         self.alive = True
 
-        self.sightRays = 10 # number of rays in sight
-        self.sightRange = 40 # range of each ray
-        self.sightWidth = 60 # how wide the vision is in degrees
+        self.sightRays = random.randint(5, 15) # number of rays in sight
+        self.sightRange = random.randint(20, 80) # range of each ray
+        self.sightWidth = random.randint(30, 100) # how wide the vision is in degrees
+        self.vision = []
 
         # keen vision: lots of rays with a small width - probably high depth
         # unkeen: less dense ray population over a large area, probably low depth
@@ -42,7 +43,22 @@ class Organism:
     def unFocus(self):
         self.isFocused = False
 
+    def look(self):
+        #work out the gap - the number of degrees between each ray
+        #gap = total degrees / (number of rays - 1)
+        gap = self.sightWidth / (self.sightRays - 1)
+        gap = int(gap)
+        vision = []
+        for direction in range(int(-(self.sightWidth / 2)), int(self.sightWidth / 2), gap):
+            vision.append(self.traceRay(direction))
+        #print(vision)
+        return vision
+        
+
     def traceRay(self, direction):
+        # add possible range detection
+        # if something is close enough then i will eat/mate
+        
         # traces one ray, and retuens the color found in that direction
         # white is invisible
         # append this color to an array - get a circle eyed view of the world
@@ -58,7 +74,8 @@ class Organism:
                 # range is measured in pixels
                 # print(rayX, rayY)
                 color = self.environment.get_at((int(rayX), int(rayY)))
-                if color != (0, 0, 0, 255) and color != (255, 255, 255, 255):
+                if color != (0, 0, 0, 255) and color != (255, 255, 255, 255) \
+                   and color != (0, 255, 0, 255) and color != self.getBodyColor():
                     return color # seen something
                 if self.isFocused:
                     # show tracing path
@@ -79,13 +96,16 @@ class Organism:
         return corpse
 
         
-
-    def draw(self):
+    def getBodyColor(self):
         # get body color
         if self.isMale:
-            bodyColor = rgb(0, 0, 200)
+            return rgb(0, 0, 200)
         else:
-            bodyColor = rgb(255, 148, 184)
+            return rgb(255, 148, 184)
+        
+    
+    def draw(self):
+        bodyColor = self.getBodyColor()
             
         pygame.draw.circle(self.environment, bodyColor,
                            (self.x, self.y), self.radius, 0)
@@ -127,8 +147,10 @@ class Organism:
         # one movement
 
         # seeing goes here
+        self.vision = self.look()
+        
 
-        # thinking goes here
+        # thinking goes here, analyse vision
 
         energyToSap = self.wander(playSpeed)
 

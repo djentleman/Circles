@@ -52,11 +52,26 @@ def initInputs(environment):
     # sight reticule from v1.0
     drawText(environment, "Sight:", 660, 220, 12)
     pygame.draw.rect(environment, rgb(255, 255, 255),
-                     (675, 250, 200, 5), 1)
+                     (675, 250, 200, 8), 1)
     pygame.draw.line(environment, rgb(255, 255, 255),
                      (775, 250), (775, 235), 2)
     pygame.draw.line(environment, rgb(255, 255, 255),
-                     (775, 255), (775, 270), 2)
+                     (775, 258), (775, 273), 2)
+
+def renderInputs(environment, vision):
+    if vision != None:
+        # we have vision
+        # each block is 5 x 5 pixels
+        
+        width = 200 / len(vision)
+        print(width)
+        
+        currentX = 675
+        for current in vision:
+            pygame.draw.rect(environment, current,
+                             (currentX, 250, width, 8), 0)
+            currentX += width # we have the reverse image
+    
 
 def initGenetics(environment):
     drawText(environment, "Genetics", 720, 160, 18)
@@ -153,9 +168,11 @@ def initSidePanel(environment, panelType):
     drawButton(environment, "->", 870, 520, 40, 40)
 
 
-def renderSidePanel(environment, panelType, stats):
+def renderSidePanel(environment, panelType, stats, vision):
     if panelType == 0:
         renderLocalStats(environment, stats)
+    elif panelType == 1:
+        renderInputs(environment, vision)
     
 
 

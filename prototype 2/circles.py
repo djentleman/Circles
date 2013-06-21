@@ -17,9 +17,10 @@ def runSim():
     pygame.display.set_caption('Circles v1.1')
     
     stats = [0, 0, 0, 0, "-", "-", "-", "-", "-", "-", "-", "-", "-"]
+    vision = None
     #all the stats will be contained in the OO interface
 
-    noOfOrganisms = 20
+    noOfOrganisms = 30
     noOfPlants = 50
     noOfCorpses = 0
     stats[0] = noOfOrganisms
@@ -61,17 +62,7 @@ def runSim():
         start = time.clock()
         environment.fill(pygame.Color(0, 0, 0)) # erase
 
-        # render a line
-        pygame.draw.line(environment, white, 
-                         (650, 0), (650, 650), 2)
-        pygame.draw.line(environment, white, 
-                         (650, 150), (900, 150), 2)
-        pygame.draw.line(environment, white, 
-                         (650, 550), (900, 550), 2)
-      
 
-        initStats(environment) # inits globals
-        initSidePanel(environment, panelType)
 
 
         
@@ -93,8 +84,9 @@ def runSim():
                 oldPlaySpeed = playSpeed
                 playSpeed = handlePlaySpeedChange(mousex, mousey, playSpeed)
                 stats[2] = playSpeed
-                newPlaySpeed = playSpeed
-                if not (newPlaySpeed == oldPlaySpeed):
+                if not (playSpeed == oldPlaySpeed):
+                    if playSpeed > 32.0 or playSpeed < 0.02:
+                        playSpeed = oldPlaySpeed
                     # apply any neccecary caps
                     break # playspeed changed
                 
@@ -104,8 +96,7 @@ def runSim():
                     stats[2] = "Paused"
                 else:
                     stats[2] = playSpeed
-                newPaused = paused
-                if not (newPaused == oldPaused):
+                if not (paused == oldPaused):
                     # state has changed
                     break # pause button pressed
                 
@@ -119,21 +110,11 @@ def runSim():
                 focus = checkForOrganism(mousex, mousey, organisms)
                 #print(mousex, mousey)
                 
-
-
+        if focus == None:
+            vision = None
+        else:
+            vision = focus.vision # what the focused one can see
         
-        drawButtons(environment, paused) # buttons mightbe hovering
-                    
-        for organism in organisms:
-            # organism does it's stuff
-            if not paused:
-                alive = organism.move(playSpeed)
-                if not alive:
-                    # organism has died
-                    corpse = organism.getCorpse()
-                    organisms.remove(organism)
-                    corpses.append(corpse)
-            organism.draw()
 
         for plant in plants:
             #plant does it's stuff
@@ -151,13 +132,44 @@ def runSim():
                     corpses.remove(corpse)
             corpse.draw()
 
+        for organism in organisms:
+            organism.draw() # need to be drawn in order to interact
+
+        for organism in organisms:
+            # organism does it's stuff
+            if not paused:
+                alive = organism.move(playSpeed)
+                if not alive:
+                    # organism has died
+                    corpse = organism.getCorpse()
+                    organisms.remove(organism)
+                    corpses.append(corpse)
+            
+
+        # draw interface on top of everything
+
+
+        #block
+        pygame.draw.rect(environment, rgb(0, 0, 0), (650, 0, 300, 650), 0)
+
+        drawButtons(environment, paused) # buttons mightbe hovering        
         #update stats
         stats = updateLocalStats(focus, stats)
         renderStats(environment, stats) # globals
-        renderSidePanel(environment, panelType, stats)
+        renderSidePanel(environment, panelType, stats, vision)
+                # render a line
+        pygame.draw.line(environment, white, 
+                         (650, 0), (650, 650), 2)
+        pygame.draw.line(environment, white, 
+                         (650, 150), (900, 150), 2)
+        pygame.draw.line(environment, white, 
+                         (650, 550), (900, 550), 2)
+      
 
+        initStats(environment) # inits globals
+        initSidePanel(environment, panelType)
 
-            
+        
         
         # tell stuff to move
         pygame.display.update() # update display
@@ -175,6 +187,7 @@ def runSim():
         stats[3] = ("%.2f" % float(1 / (end - start)))
         simulationTime += ((end - start) * playSpeed)
         stats[4] = ("%.2f" % simulationTime + "s")
+
 
 
 def main():

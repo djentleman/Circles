@@ -58,7 +58,7 @@ class Plant(Food):
         self.radius = int(self.actualRadius)
     
     def getColor(self):
-        return rgb(0, self.nutrition, 0)
+        return rgb(10, self.nutrition, 10)
 
     def draw(self):
         col = self.getColor()
