@@ -24,7 +24,8 @@ class Organism:
 
         self.sightRays = random.randint(5, 15) # number of rays in sight
         self.sightRange = random.randint(20, 80) # range of each ray
-        self.sightWidth = random.randint(30, 100) # how wide the vision is in degrees
+        self.sightWidth = random.randint(4, 12) ** 2
+        # how wide the vision is in degrees
         self.vision = []
 
         # keen vision: lots of rays with a small width - probably high depth
@@ -75,8 +76,11 @@ class Organism:
                 # print(rayX, rayY)
                 color = self.environment.get_at((int(rayX), int(rayY)))
                 if color != (0, 0, 0, 255) and color != (255, 255, 255, 255) \
-                   and color != (0, 255, 0, 255) and color != self.getBodyColor():
+                   and color != (0, 255, 0, 255) and color != self.getBodyColor() \
+                   and rayX < 650:
                     return color # seen something
+                elif rayX > 650:
+                    return rgb(255, 255, 255)
                 if self.isFocused:
                     # show tracing path
                     self.environment.set_at((int(rayX), int(rayY)), rgb(0, 255, 0))
@@ -86,7 +90,9 @@ class Organism:
                 # out of bounds error
                 return rgb(255, 255, 255) # wall!
         return rgb(0, 0, 0) # black
-            
+
+    def turn(self, change):
+        self.direction += change
         
     def die(self):
         self.alive = False
@@ -110,7 +116,7 @@ class Organism:
         pygame.draw.circle(self.environment, bodyColor,
                            (self.x, self.y), self.radius, 0)
         if not self.isFocused:        
-            shellColor = rgb(self.aggressionIndex,  0, 0)
+            shellColor = rgb(self.aggressionIndex,  20, 20)
         else:
             shellColor = rgb(0, 255, 0)
         
@@ -142,6 +148,59 @@ class Organism:
             return energyToSap
         return 0
 
+    def analysePixel(self, pixel):
+        # returns either: True (move towards)
+        # False (move away) or None (neither)
+
+        if pixel == rgb(255, 255, 255):
+            return False
+        if pixel[0] == 10 and pixel[2] == 10:
+            # plant
+            return True
+        if pixel[1] == pixel[2] and pixel[0] < self.aggression + 30 \
+           and pixel != rgb(0, 0, 0):
+            return True
+        elif pixel[1] == pixel[2] and pixel[0] >= self.aggression + 30 \
+           and pixel != rgb(0, 0, 0):
+            return False
+        
+        
+        return None
+        
+
+    def analyseVision(self):
+        # this is an unintellegent version, presents some bugs
+        
+        # vision = self.vision
+        if len(self.vision) % 2 == 1:
+            centre = int(len(self.vision) / 2)
+        else:
+            centre = int(len(self.vision) / 2) - 1
+        centrePixel = self.analysePixel(self.vision[centre])
+        if centrePixel != None:
+            if centrePixel:
+                return 0
+            else:
+                return 1
+        
+        half = int(len(self.vision) / 2) # odd number is half - 0.5
+        for index in range(0, half):
+            # scan left half of vision
+            pixelAnalysis = self.analysePixel(self.vision[index])
+            if pixelAnalysis != None:
+                if pixelAnalysis: # true
+                    return -1
+                return 1
+            
+        for index in range(len(self.vision) - 1, len(self.vision) - half, -1):
+            # scan right half of vision
+            pixelAnalysis = self.analysePixel(self.vision[index])
+            if pixelAnalysis != None:
+                if pixelAnalysis: # true
+                    return 1
+                return -1
+        return 0
+
     def move(self, playSpeed):
         
         # one movement
@@ -149,7 +208,9 @@ class Organism:
         # seeing goes here
         self.vision = self.look()
         
-
+        change = self.analyseVision() * playSpeed
+        self.turn(change)
+        
         # thinking goes here, analyse vision
 
         energyToSap = self.wander(playSpeed)
