@@ -64,7 +64,6 @@ def renderInputs(environment, vision):
         # each block is 5 x 5 pixels
         
         width = 200 / len(vision)
-        print(width)
         
         currentX = 675
         for current in vision:

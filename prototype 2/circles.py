@@ -185,7 +185,8 @@ def runSim():
 
         end = time.clock()
         stats[3] = ("%.2f" % float(1 / (end - start)))
-        simulationTime += ((end - start) * playSpeed)
+        if not paused:
+            simulationTime += ((end - start) * playSpeed)
         stats[4] = ("%.2f" % simulationTime + "s")
 
 
