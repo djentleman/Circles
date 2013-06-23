@@ -166,17 +166,26 @@ class Interface:
         # graph is rendered using a pixelarray
 
         # buttons
-        drawGraphSelect(self.environment, "Speed", 710, 400, 90, True)
+        drawGraphSelect(self.environment, "Speed", 710, 400, 90, False)
         drawGraphSelect(self.environment, "Aggression", 710, 430, 90, False)
-        drawGraphSelect(self.environment, "Energy", 710, 460, 90, False)
+        drawGraphSelect(self.environment, "Energy", 710, 460, 90, True)
         drawGraphSelect(self.environment, "Direction", 840, 400, 90, False)
         drawGraphSelect(self.environment, "Mass", 840, 430, 90, False)
         drawGraphSelect(self.environment, "Radius", 840, 460, 90, False)
 
     def renderGraphs(self):
         if self.focus != None:
-            self.environment.set_at((850, 350 - int(self.focus.energy)),
-                                    rgb(0, 255, 0))
+            for i in range(len(self.graphArray) - 1):
+                self.graphArray[i] = (self.graphArray[i][0] - 1,
+                                      self.graphArray[i][1])
+                if self.graphArray[i][0] < 700:
+                    self.graphArray.remove(self.graphArray[i])
+                    break
+            self.graphArray.append((850, 350 - int(self.focus.energy)))
+            for pixel in self.graphArray:
+                self.environment.set_at(pixel, rgb(0, 255, 0))
+        else:
+            self.graphArray = []
 
     def initNothing(self):                                
         drawText(self.environment, "None", 750, 160, 18)
