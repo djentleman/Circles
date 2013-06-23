@@ -9,7 +9,7 @@ class Organism:
         self.y = y
         self.actualX = float(x)
         self.actualY = float(y)
-        self.radius = random.randint(1, 10)
+        self.radius = random.randint(3, 10)
         self.actualRadius = float(self.radius)
         self.mass = math.pi * (self.radius * self.radius)
         self.aggressionIndex = random.randint(1, 255)
@@ -20,6 +20,7 @@ class Organism:
         self.direction = random.randint(0, 360)
         self.speed = random.random() + 0.25
         self.energy = 100.0
+        self.energyCap = 120.00 # radius goes up once radius has exceeded cap
         self.alive = True
 
         self.sightRays = random.randint(5, 15) # number of rays in sight
@@ -93,6 +94,7 @@ class Organism:
 
     def turn(self, change):
         self.direction += change
+        self.direction = (self.direction % 360)
         
     def die(self):
         self.alive = False
@@ -153,16 +155,18 @@ class Organism:
         # False (move away) or None (neither)
 
         if pixel == rgb(255, 255, 255):
-            return False
-        if pixel[0] == 10 and pixel[2] == 10:
-            # plant
-            return True
+            return False # walls
+        
         if pixel[1] == pixel[2] and pixel[0] < self.aggression + 30 \
            and pixel != rgb(0, 0, 0):
-            return True
+            return True # flocking
         elif pixel[1] == pixel[2] and pixel[0] >= self.aggression + 30 \
            and pixel != rgb(0, 0, 0):
-            return False
+            return False # running
+        
+        if pixel[0] == 10 and pixel[2] == 10:
+            # plant
+            return True # food
         
         
         return None
@@ -177,7 +181,7 @@ class Organism:
         else:
             centre = int(len(self.vision) / 2) - 1
         centrePixel = self.analysePixel(self.vision[centre])
-        if centrePixel != None:
+        if centrePixel != None and self.vision[centre] != rgb(255, 255, 255):
             if centrePixel:
                 return 0
             else:
@@ -189,16 +193,13 @@ class Organism:
             pixelAnalysis = self.analysePixel(self.vision[index])
             if pixelAnalysis != None:
                 if pixelAnalysis: # true
-                    return -1
-                return 1
-            
-        for index in range(len(self.vision) - 1, len(self.vision) - half, -1):
-            # scan right half of vision
-            pixelAnalysis = self.analysePixel(self.vision[index])
+                    return -1.5
+                return 1.5
+            pixelAnalysis = self.analysePixel(self.vision[-(index + 1)])
             if pixelAnalysis != None:
                 if pixelAnalysis: # true
-                    return 1
-                return -1
+                    return 1.5
+                return -1.5
         return 0
 
     def move(self, playSpeed):
