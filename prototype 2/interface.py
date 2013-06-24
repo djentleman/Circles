@@ -16,6 +16,7 @@ class Interface:
         self.localStats = ["-", "-", "-", "-", "-", "-", "-", "-"]
 
         self.graphArray = [] # updates as graph updates
+        self.graphType = 0 # number between 0 and 5
 
         self.paused = False
         self.playSpeed = 1.0
@@ -166,12 +167,21 @@ class Interface:
         # graph is rendered using a pixelarray
 
         # buttons
-        drawGraphSelect(self.environment, "Speed", 710, 400, 90, False)
-        drawGraphSelect(self.environment, "Aggression", 710, 430, 90, False)
-        drawGraphSelect(self.environment, "Energy", 710, 460, 90, True)
-        drawGraphSelect(self.environment, "Direction", 840, 400, 90, False)
-        drawGraphSelect(self.environment, "Mass", 840, 430, 90, False)
-        drawGraphSelect(self.environment, "Radius", 840, 460, 90, False)
+        statNames = ["Speed", "Aggression", "Energy",
+                     "Direction", "Mass", "Radius"]
+        currentX = 710
+        currentY = 400
+        for index in range(len(statNames)):
+            if index == self.graphType:
+                drawGraphSelect(self.environment, statNames[index],
+                                currentX, currentY, 90, True)
+            else:
+                drawGraphSelect(self.environment, statNames[index],
+                                currentX, currentY, 90, False)
+            currentY += 30
+            if currentY > 460:
+                currentX += 130
+                currentY = 400
 
     def renderGraphs(self):
         if self.focus != None:
@@ -181,7 +191,22 @@ class Interface:
                 if self.graphArray[i][0] < 700:
                     self.graphArray.remove(self.graphArray[i])
                     break
-            self.graphArray.append((850, 350 - int(self.focus.energy)))
+            # multipliers are calculated by n(max) / h = n(max) / 150
+            # max radius = 15
+            if self.graphType == 0:
+                self.graphArray.append((850, 350 - int(self.focus.speed * 100)))
+            elif self.graphType == 1:
+                self.graphArray.append((850, 350 - int(self.focus.aggression / 1.7)))
+            elif self.graphType == 2:
+                self.graphArray.append((850, 350 - int(self.focus.energy)))
+            elif self.graphType == 3:
+                self.graphArray.append((850, 350 - int(self.focus.direction / 2.4)))
+            elif self.graphType == 4:
+                self.graphArray.append((850, 350 - int(self.focus.mass / 4.71)))
+            elif self.graphType == 5:
+                self.graphArray.append((850, 350 - int(self.focus.actualRadius * 10)))
+
+
             for pixel in self.graphArray:
                 self.environment.set_at(pixel, rgb(0, 255, 0))
         else:
@@ -196,7 +221,11 @@ class Interface:
             return False
         self.panelType = handlePanelTypeChange(x, y, self.panelType)
         self.playSpeed = handlePlaySpeedChange(x, y, self.playSpeed)
-        self.paused = handlePauseButton(x, y, self.paused)
+        self.paused = handlePauseButtonChange(x, y, self.paused)
+        newGraphType = handleGraphButtonChange(x, y)
+        if newGraphType != None and self.panelType == 3:
+            self.graphType = newGraphType
+            self.graphArray = []
         return True
              
 def handlePanelTypeChange(x, y, panelType):
@@ -221,10 +250,34 @@ def handlePlaySpeedChange(x, y, playSpeed):
         playSpeed *= 2 # increase speed
     return playSpeed
 
-def handlePauseButton(x, y, paused):
+def handlePauseButtonChange(x, y, paused):
     if x > 755 and x < 795 and \
        y > 580 and y < 620:
         # button pressed
         paused = not paused # flip
     return paused
+
+def handleGraphButtonChange(x, y):
+    if x > 665 and x < 755 and \
+       y > 390 and y < 410:
+        return 0
+    if x > 665 and x < 755 and \
+       y > 420 and y < 440:
+        return 1
+    if x > 665 and x < 755 and \
+       y > 450 and y < 470:
+        return 2
+    if x > 795 and x < 885 and \
+       y > 390 and y < 410:
+        return 3
+    if x > 795 and x < 885 and \
+       y > 420 and y < 440:
+        return 4
+    if x > 795 and x < 885 and \
+       y > 450 and y < 470:
+        return 5
+    else:
+        return None
+    
+        
 

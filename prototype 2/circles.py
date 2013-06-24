@@ -66,8 +66,6 @@ def runSim():
     while True:
         start = time.clock()
         environment.fill(pygame.Color(0, 0, 0)) # erase
-
-        purgeFocus(organisms, interface.focus) # purges focus on non focused organisms
       
         for event in pygame.event.get(): # this makes it stable!
             if event.type == QUIT:
@@ -82,6 +80,9 @@ def runSim():
                 pressed = interface.handleButtonPress(mousex, mousey)
                 if not pressed:
                     interface.focus = checkForOrganism(mousex, mousey, organisms)
+                    interface.graphArray = []
+                    purgeFocus(organisms, interface.focus)
+                    # purges focus on non focused organisms
                 else:
                     playSpeed = interface.playSpeed
                     paused = interface.paused

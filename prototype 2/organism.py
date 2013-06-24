@@ -10,6 +10,7 @@ class Organism:
         self.actualX = float(x)
         self.actualY = float(y)
         self.radius = random.randint(3, 10)
+        self.naturalRadius = self.radius # this size when healthy
         self.actualRadius = float(self.radius)
         self.mass = math.pi * (self.radius * self.radius)
         self.aggressionIndex = random.randint(1, 255)
@@ -20,7 +21,10 @@ class Organism:
         self.direction = random.randint(0, 360)
         self.speed = random.random() + 0.25
         self.energy = 100.0
-        self.energyCap = 120.00 # radius goes up once radius has exceeded cap
+        self.highEnergyCap = random.randint(100, 150)
+        # radius goes up once energy has exceeded cap
+        self.lowEnergyCap = random.randint(15, 40)
+        # radius goes down once energy below cap
         self.alive = True
 
         self.sightRays = random.randint(5, 15) # number of rays in sight
@@ -224,6 +228,17 @@ class Organism:
 
         if self.energy < 0:
             self.die()
+        elif self.energy > self.highEnergyCap:
+            self.actualRadius += 0.01
+        elif self.energy < self.lowEnergyCap:
+            self.actualRadius -= 0.01
+            
+        if self.actualRadius < 2:
+            self.actualRadius = 2.0
+        self.radius = int(self.actualRadius)
+
+        self.mass = math.pi * (self.actualRadius * self.actualRadius)
+        
 
         return self.alive
             
