@@ -164,6 +164,23 @@ class Interface:
                          (700, 200), (700, 360), 2)
         pygame.draw.line(self.environment, rgb(255, 255, 255),
                          (690, 350), (850, 350), 2)
+        
+        pygame.draw.line(self.environment, rgb(255, 255, 255),
+                         (695, 200), (705, 200), 1)
+        pygame.draw.line(self.environment, rgb(255, 255, 255),
+                         (695, 275), (705, 275), 1)
+        pygame.draw.line(self.environment, rgb(255, 255, 255),
+                         (850, 345), (850, 355), 1)
+        pygame.draw.line(self.environment, rgb(255, 255, 255),
+                         (775, 345), (775, 355), 1)
+        
+        for currentY in range(215, 350, 15):
+            pygame.draw.line(self.environment, rgb(255, 255, 255),
+                             (698, currentY), (702, currentY), 1)
+        for currentX in range(835, 700, -15):
+            pygame.draw.line(self.environment, rgb(255, 255, 255),
+                             (currentX, 348), (currentX, 352), 1)
+            
         # graph is rendered using a pixelarray
 
         # buttons
@@ -191,21 +208,40 @@ class Interface:
                 if self.graphArray[i][0] < 700:
                     self.graphArray.remove(self.graphArray[i])
                     break
-            # multipliers are calculated by n(max) / h = n(max) / 150
+            # multipliers are calculated by 1 /(n(max) / h) = 1 / (n(max) / 150)
             # max radius = 15
+            maxY = ""
+            midY = ""
             if self.graphType == 0:
                 self.graphArray.append((850, 350 - int(self.focus.speed * 100)))
+                maxY = "1.5"
+                midY = "0.75"
             elif self.graphType == 1:
                 self.graphArray.append((850, 350 - int(self.focus.aggression / 1.7)))
+                maxY = "255"
+                midY = "127.5"
             elif self.graphType == 2:
                 self.graphArray.append((850, 350 - int(self.focus.energy)))
+                maxY = "150"
+                midY = "75"
             elif self.graphType == 3:
                 self.graphArray.append((850, 350 - int(self.focus.direction / 2.4)))
+                maxY = "360"
+                midY = "180"
             elif self.graphType == 4:
                 self.graphArray.append((850, 350 - int(self.focus.mass / 4.71)))
+                maxY = "700"
+                midY = "350"
             elif self.graphType == 5:
                 self.graphArray.append((850, 350 - int(self.focus.actualRadius * 10)))
+                maxY = "15"
+                midY = "7.5"
 
+            maxX = ("%.2f" % self.globalStats[4] + "s")
+                
+            drawText(self.environment, maxY, 670, 197, 10)
+            drawText(self.environment, midY, 670, 272, 10)
+            drawText(self.environment, maxX, 840, 360, 10)
 
             for pixel in self.graphArray:
                 self.environment.set_at(pixel, rgb(0, 255, 0))

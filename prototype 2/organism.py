@@ -71,10 +71,9 @@ class Organism:
         # direction = direction ray is traveling
         # actual direction = direction + self.direction
 
-        # trif is done in radians - fix this!
         rayDirection = ((math.pi * self.direction) / 180) + ((math.pi * direction) / 180)
-        rayX = self.actualX + (self.radius * math.cos(rayDirection))
-        rayY = self.actualY + (self.radius * math.sin(rayDirection))
+        rayX = self.actualX + ((self.radius + 3) * math.cos(rayDirection))
+        rayY = self.actualY + ((self.radius + 3) * math.sin(rayDirection))
         for i in range(self.sightRange):
             try:
                 # range is measured in pixels

@@ -138,7 +138,7 @@ def runSim():
         end = time.clock()
         if not paused:
             simulationTime += ((end - start) * playSpeed)
-        frameRate = ("%.2f" % float(1 / (end - start)))
+        frameRate = float(1 / (end - start))
 
 def main():
     runSim()
