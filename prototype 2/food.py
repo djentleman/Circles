@@ -39,10 +39,11 @@ class Corpse(Food):
             return rgb(150, int(self.rotLevel / 2), 10)
         return rgb(0, 0, 0)
 
-    def draw(self):
+    def draw(self, scrollX, scrollY):
         col = self.getColor()
         pygame.draw.circle(self.environment, col,
-                           (self.x, self.y), self.radius, 0)
+                           (int(self.x - scrollX), int(self.y - scrollY)),
+                           self.radius, 0)
 
     
 
@@ -60,10 +61,11 @@ class Plant(Food):
     def getColor(self):
         return rgb(10, self.nutrition, 10)
 
-    def draw(self):
+    def draw(self, scrollX, scrollY):
         col = self.getColor()
         pygame.draw.circle(self.environment, col,
-                           (self.x, self.y), self.radius, 0)
+                           (int(self.x - scrollX), int(self.y - scrollY)),
+                           self.radius, 0)
 
 class PoisonPlant(Plant):
     def __init__(self, x, y, environment):

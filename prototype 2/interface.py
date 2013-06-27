@@ -21,6 +21,20 @@ class Interface:
         self.paused = False
         self.playSpeed = 1.0
 
+        self.scrollX = 0
+        self.scrollY = 0
+        # scroll values between 0 and 420
+
+    def draw(self):
+        self.updateLocalStats()
+        self.outLineSidePanel()
+        self.initGlobalStats()
+        self.renderGlobalStats()
+        self.initSidePanel()
+        self.renderSidePanel()
+        self.drawButtons()
+        self.initScrollBars()
+
     def outLineSidePanel(self):
         pygame.draw.rect(self.environment, rgb(0, 0, 0), (650, 0, 300, 650), 0)
         pygame.draw.line(self.environment, rgb(255, 255, 255), 
@@ -29,6 +43,19 @@ class Interface:
                          (650, 150), (900, 150), 2)
         pygame.draw.line(self.environment, rgb(255, 255, 255), 
                          (650, 550), (900, 550), 2)
+
+    def initScrollBars(self):
+        pygame.draw.line(self.environment, rgb(110, 110, 110),
+                         (640, 20), (640, 630), 1)
+        pygame.draw.line(self.environment, rgb(110, 110, 110),
+                         (20, 640), (630, 640), 1)
+        # scroll range = 25 ~ 625
+        # 600 pixels
+        pygame.draw.rect(self.environment, rgb(120, 120, 120),
+                         (638, self.scrollY + 25, 5, 180), 0)
+        pygame.draw.rect(self.environment, rgb(120, 120, 120),
+                         (self.scrollX + 25, 638, 180, 5), 0)
+        
 
     def drawButtons(self):
         drawButton(self.environment, "«", 725, 600, 40, 40)

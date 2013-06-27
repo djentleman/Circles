@@ -9,6 +9,8 @@ class Organism:
         self.y = y
         self.actualX = float(x)
         self.actualY = float(y)
+        self.scrollX = x
+        self.scrollY = y
         self.radius = random.randint(3, 10)
         self.naturalRadius = self.radius # this size when healthy
         self.actualRadius = float(self.radius)
@@ -29,7 +31,7 @@ class Organism:
         # radius goes down once energy below cap
         self.alive = True
 
-        self.sightRays = random.randint(5, 15) # number of rays in sight
+        self.sightRays = random.randint(5, 12) # number of rays in sight
         self.sightRange = random.randint(20, 80) # range of each ray
         self.sightWidth = random.randint(4, 12) ** 2
         # how wide the vision is in degrees
@@ -74,8 +76,8 @@ class Organism:
         # actual direction = direction + self.direction
 
         rayDirection = ((math.pi * self.direction) / 180) + ((math.pi * direction) / 180)
-        rayX = self.actualX + ((self.radius + 3) * math.cos(rayDirection))
-        rayY = self.actualY + ((self.radius + 3) * math.sin(rayDirection))
+        rayX = self.scrollX + ((self.radius + 3) * math.cos(rayDirection))
+        rayY = self.scrollY + ((self.radius + 3) * math.sin(rayDirection))
         for i in range(self.sightRange):
             try:
                 # range is measured in pixels
@@ -120,18 +122,22 @@ class Organism:
             return rgb(255, 148, 184)
         
     
-    def draw(self):
+    def draw(self, scrollX, scrollY):
+        self.scrollX = int(self.x - scrollX)
+        self.scrollY = int(self.y - scrollY)
         bodyColor = self.getBodyColor()
             
         pygame.draw.circle(self.environment, bodyColor,
-                           (self.x, self.y), self.radius, 0)
+                           (self.scrollX, self.scrollY),
+                           self.radius, 0)
         if not self.isFocused:        
             shellColor = rgb(self.aggressionIndex,  20, 20)
         else:
             shellColor = rgb(0, 255, 0)
         
         pygame.draw.circle(self.environment, shellColor,
-                           (self.x, self.y), self.radius + 1, 2)
+                           (self.scrollX, self.scrollY),
+                            self.radius + 1, 2)
 
     def wander(self, playSpeed):
         speed = self.speed * playSpeed
@@ -213,7 +219,8 @@ class Organism:
         return 0
 
     def checkForThreat(self, pixel):
-        if pixel[1] == pixel[2] and pixel[0] > self.aggression + 50:
+        if pixel[1] == pixel[2] and pixel[0] > self.aggression + 50 \
+           and pixel[1] != 255:
             return True
         return False
 

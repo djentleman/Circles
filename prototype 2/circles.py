@@ -1,4 +1,4 @@
-#pygame test
+# circles prototype 2
 
 import pygame, sys, time, random, math
 from pygame.locals import *
@@ -11,8 +11,8 @@ from food import *
 def checkForOrganism(x, y, organisms):
     for organism in organisms:
         rad = organism.radius
-        if x > organism.x - rad and x < organism.x + rad and \
-           y > organism.y - rad and y < organism.y + rad:
+        if x > organism.scrollX - rad and x < organism.scrollX + rad and \
+           y > organism.scrollY - rad and y < organism.scrollY + rad:
             organism.focus()
             
             #print("organism focused")
@@ -25,7 +25,7 @@ def purgeFocus(organisms, focus):
             organism.unFocus()
 
 def runSim():    
-    pygame.init() # lol pygame is so gay
+    pygame.init()
     fpsClock = pygame.time.Clock()
 
     environment = pygame.display.set_mode((900, 650))
@@ -42,8 +42,8 @@ def runSim():
 
     organisms = []
     for i in range(noOfOrganisms):
-        randX = random.randint(0, 650)
-        randY = random.randint(0, 650)
+        randX = random.randint(0, 2000)
+        randY = random.randint(0, 2000)
         organism = Organism(randX, randY, environment)
         organisms.append(organism)
 
@@ -52,8 +52,8 @@ def runSim():
     plants = []
     for i in range(noOfPlants):
         isPoison = random.random()
-        randX = random.randint(0, 650)
-        randY = random.randint(0, 650)
+        randX = random.randint(0, 2000)
+        randY = random.randint(0, 2000)
         if isPoison < 0.92:
             plant = Plant(randX, randY, environment)
         else:
@@ -63,6 +63,9 @@ def runSim():
     simulationTime = 0.0
     frameRate = 0.0
 
+    mousedown = False
+    
+
     while True:
         start = time.clock()
         environment.fill(pygame.Color(0, 0, 0)) # erase
@@ -71,11 +74,12 @@ def runSim():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == MOUSEMOTION:
-                mousex, mousey = event.pos
-                # hover goes here
-                #print(mousex, mousey)
+            #elif event.type == MOUSEMOTION:
+            #    mousex, mousey = event.pos
+            #    # hover goes here
+            #    #print(mousex, mousey)
             elif event.type == MOUSEBUTTONDOWN:
+                mousedown = True
                 mousex, mousey = event.pos
                 pressed = interface.handleButtonPress(mousex, mousey)
                 if not pressed:
@@ -86,6 +90,22 @@ def runSim():
                 else:
                     playSpeed = interface.playSpeed
                     paused = interface.paused
+            elif event.type == MOUSEBUTTONUP:
+                mousedown = False
+                
+        if mousedown:
+            relx, rely = pygame.mouse.get_rel()
+            interface.scrollX -= relx
+            interface.scrollY -= rely
+            if interface.scrollX > 420:
+                interface.scrollX = 420
+            elif interface.scrollX < 0:
+                interface.scrollX = 0
+            if interface.scrollY > 420:
+                interface.scrollY = 420
+            elif interface.scrollY < 0:
+                interface.scrollY = 0
+        pygame.mouse.get_rel() # reset
 
         for plant in plants:
             #plant does it's stuff
@@ -94,17 +114,17 @@ def runSim():
                 if plant.eaten:
                     plants.remove(plant)
                 
-            plant.draw()
+            plant.draw(interface.scrollX * 3.33, interface.scrollY * 3.33)
 
         for corpse in corpses:
             if not paused:
                 alive = not corpse.rot(playSpeed)
                 if not alive:
                     corpses.remove(corpse)
-            corpse.draw()
+            corpse.draw(interface.scrollX * 3.33, interface.scrollY * 3.33)
 
         for organism in organisms:
-            organism.draw() # need to be drawn in order to interact
+            organism.draw(interface.scrollX * 3.33, interface.scrollY * 3.33) # need to be drawn in order to interact
 
         for organism in organisms:
             # organism does it's stuff
@@ -116,14 +136,7 @@ def runSim():
                     organisms.remove(organism)
                     corpses.append(corpse)
             
-        interface.updateLocalStats()
-        interface.outLineSidePanel()
-        
-        interface.initGlobalStats()
-        interface.renderGlobalStats()
-        interface.initSidePanel()
-        interface.renderSidePanel()
-        interface.drawButtons()
+        interface.draw() # everything rendered here is invisible to the organisms
 
         noOfOrganisms = len(organisms)
         noOfPlants = len(plants)
