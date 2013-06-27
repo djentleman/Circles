@@ -13,7 +13,7 @@ class Interface:
         self.environment = environment
         
         self.globalStats = ["-", "-", "-", "-", "-"]
-        self.localStats = ["-", "-", "-", "-", "-", "-", "-", "-"]
+        self.localStats = ["-", "-", "-", "-", "-", "-", "-", "-", "-"]
 
         self.graphArray = [] # updates as graph updates
         self.graphType = 0 # number between 0 and 5
@@ -73,8 +73,8 @@ class Interface:
         self.globalStats[0] = noOfOrganisms
         self.globalStats[1] = noOfFood
         self.globalStats[2] = playSpeed
-        self.globalStats[3] = frameRate
-        self.globalStats[4] = simTime
+        self.globalStats[3] = "%.2f" % frameRate
+        self.globalStats[4] = "%.2f" % simTime
 
     def updateLocalStats(self):
         if self.focus == None:
@@ -92,6 +92,8 @@ class Interface:
             self.localStats[5] = "%.2f" % self.focus.actualX
             self.localStats[6] = "%.2f" % self.focus.actualY
             self.localStats[7] = "%.2f" % self.focus.energy
+            self.localStats[8] = self.focus.behavior
+            
 
     def initGlobalStats(self):
         drawText(self.environment, "Global Stats", 720, 10, 18)
@@ -118,6 +120,8 @@ class Interface:
         drawText(self.environment, "X-Coord:", 660, 290, 12)
         drawText(self.environment, "Y-Coord:", 660, 310, 12)
         drawText(self.environment, "Energy:", 660, 330, 12)
+        drawText(self.environment, "Behavior:", 660, 350, 12)
+        
 
     def renderLocalStats(self):
         drawText(self.environment, str(self.localStats[0]), 850, 190, 12)
@@ -128,7 +132,8 @@ class Interface:
         drawText(self.environment, str(self.localStats[5]), 850, 290, 12)
         drawText(self.environment, str(self.localStats[6]), 850, 310, 12)
         drawText(self.environment, str(self.localStats[7]), 850, 330, 12)
-
+        drawText(self.environment, str(self.localStats[8]), 850, 350, 12)
+        
     def initInputs(self):
         drawText(self.environment, "Inputs", 745, 160, 18)
         # sight reticule from v1.0
@@ -213,9 +218,9 @@ class Interface:
             maxY = ""
             midY = ""
             if self.graphType == 0:
-                self.graphArray.append((850, 350 - int(self.focus.speed * 100)))
-                maxY = "1.5"
-                midY = "0.75"
+                self.graphArray.append((850, 350 - int(self.focus.speed * 62.5)))
+                maxY = "2.6"
+                midY = "1.3"
             elif self.graphType == 1:
                 self.graphArray.append((850, 350 - int(self.focus.aggression / 1.7)))
                 maxY = "255"
@@ -237,7 +242,7 @@ class Interface:
                 maxY = "15"
                 midY = "7.5"
 
-            maxX = ("%.2f" % self.globalStats[4] + "s")
+            maxX = (self.globalStats[4] + "s")
                 
             drawText(self.environment, maxY, 670, 197, 10)
             drawText(self.environment, midY, 670, 272, 10)

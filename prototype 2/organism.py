@@ -20,6 +20,8 @@ class Organism:
         self.isFocused = False
         self.direction = random.randint(0, 360)
         self.speed = random.random() + 0.25
+        self.naturalSpeed = self.speed
+        self.kenisisTimer = 0
         self.energy = 100.0
         self.highEnergyCap = random.randint(100, 150)
         # radius goes up once energy has exceeded cap
@@ -35,7 +37,7 @@ class Organism:
 
         # keen vision: lots of rays with a small width - probably high depth
         # unkeen: less dense ray population over a large area, probably low depth
-        self.action = "wander"
+        self.behavior = "Taxis"
         self.eating = None # once something is being eaten it becomes
         # an attribute temporarily
         # stops messy O(n^2) algorithms
@@ -98,6 +100,9 @@ class Organism:
     def turn(self, change):
         self.direction += change
         self.direction = (self.direction % 360)
+
+    def accelerate(self, change):
+        self.speed += change
         
     def die(self):
         self.alive = False
@@ -133,8 +138,8 @@ class Organism:
         # energy (kinetic) can be measured by (mv^2)/2
         # but that would sap too much, so well use a multiplyer, η
         # e(w) = (η(πr^2)v^2)/2 = (ηmv^2)/2
-        energyToSap = (0.005 * self.mass * (self.speed * self.speed)) / 2
-        # η is taken as 0.005
+        energyToSap = (0.003 * self.mass * (self.speed * self.speed)) / 2
+        # η is taken as 0.003
 
         if self.energy > energyToSap:
             # can sap
@@ -165,6 +170,8 @@ class Organism:
             return True # flocking
         elif pixel[1] == pixel[2] and pixel[0] >= self.aggression + 30 \
            and pixel != rgb(0, 0, 0):
+            if pixel[0] > self.aggression + 60:
+                self.behavior = "Kenisis"
             return False # running
         
         if pixel[0] == 10 and pixel[2] == 10:
@@ -175,7 +182,7 @@ class Organism:
         return None
         
 
-    def analyseVision(self):
+    def taxis(self):
         # this is an unintellegent version, presents some bugs
         
         # vision = self.vision
@@ -205,15 +212,58 @@ class Organism:
                 return -1.5
         return 0
 
+    def checkForThreat(self, pixel):
+        if pixel[1] == pixel[2] and pixel[0] > self.aggression + 50:
+            return True
+        return False
+
+    def kenisis(self):
+        safe = True
+        for pixel in self.vision:
+            if self.checkForThreat(pixel):
+                #threat detected
+                self.kenisisTimer = 40
+                safe = False
+        if safe:
+            self.kenisisTimer -= 1
+        if self.kenisisTimer == 0:
+            self.behavior = "Taxis"
+        if random.random() > 0.8:
+            return random.randint(-5, 5)
+        else:
+            return 0
+                
+        
+
+    
+
     def move(self, playSpeed):
         
         # one movement
 
         # seeing goes here
         self.vision = self.look()
-        
-        change = self.analyseVision() * playSpeed
-        self.turn(change)
+        if self.behavior == "Taxis":
+            if self.speed > self.naturalSpeed:
+                self.accelerate(-self.speed * 0.04)
+            elif self.speed < self.naturalSpeed:
+                self.speed = self.naturalSpeed
+                
+            change = self.taxis() * playSpeed
+            self.turn(change)
+            
+        elif self.behavior == "Kenisis":
+            if self.speed < self.naturalSpeed * 1.7:
+                self.accelerate(self.speed * 0.04)
+                
+            change = self.kenisis()
+            self.turn(change)
+
+        else:
+            self.behavior = "Taxis"
+                        
+            
+            
         
         # thinking goes here, analyse vision
 
@@ -221,9 +271,12 @@ class Organism:
 
         if energyToSap != 0:
             self.energy -= (energyToSap * playSpeed)
+            if self.speed == 0:
+                self.speed = self.naturalSpeed
         else:
             #idle
-            self.energy -= (0.005 * playSpeed)
+            self.speed = 0
+            self.energy -= (0.001 * playSpeed)
 
         if self.energy < 0:
             self.die()

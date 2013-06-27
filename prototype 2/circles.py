@@ -61,7 +61,7 @@ def runSim():
         plants.append(plant)
         
     simulationTime = 0.0
-    frameRate = ""
+    frameRate = 0.0
 
     while True:
         start = time.clock()
