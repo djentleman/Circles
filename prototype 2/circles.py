@@ -7,6 +7,7 @@ from organism import *
 from pygame_util import *
 from interface import *
 from food import *
+from biomes import *
 
 def checkForOrganism(x, y, organisms):
     for organism in organisms:
@@ -33,8 +34,8 @@ def runSim():
     
     interface = Interface(environment)
 
-    noOfOrganisms = 30
-    noOfPlants = 50
+    noOfOrganisms = 50
+    noOfPlants = 0
     noOfCorpses = 0
     playSpeed = 1.0
     paused = False
@@ -50,15 +51,15 @@ def runSim():
     corpses = []
 
     plants = []
-    for i in range(noOfPlants):
-        isPoison = random.random()
-        randX = random.randint(0, 2000)
-        randY = random.randint(0, 2000)
-        if isPoison < 0.92:
-            plant = Plant(randX, randY, environment)
-        else:
-            plant = PoisonPlant(randX, randY, environment)
-        plants.append(plant)
+    biomes = []
+    for i in range(10): # 5 biomes
+        biome = Biome(1000, 1000)
+        biome.x = random.randint(biome.radius, 2000 - biome.radius)
+        biome.y = random.randint(biome.radius, 2000 - biome.radius)
+        # this stops overflow
+        plants = plants + biome.initBiome(environment)
+        biomes.append(biome)
+    noOfPlants = len(plants)
         
     simulationTime = 0.0
     frameRate = 0.0
@@ -92,6 +93,7 @@ def runSim():
                     paused = interface.paused
             elif event.type == MOUSEBUTTONUP:
                 mousedown = False
+        
                 
         if mousedown:
             relx, rely = pygame.mouse.get_rel()
@@ -106,16 +108,16 @@ def runSim():
             elif interface.scrollY < 0:
                 interface.scrollY = 0
         pygame.mouse.get_rel() # reset
+        
+        if not paused:
+            plants = []
+            for biome in biomes:
+                plants = plants + biome.grow(playSpeed, environment)
 
         for plant in plants:
-            #plant does it's stuff
-            if not paused:
-                plant.grow(playSpeed)
-                if plant.eaten:
-                    plants.remove(plant)
-                
+            #3.33 = 2000 / 600
             plant.draw(interface.scrollX * 3.33, interface.scrollY * 3.33)
-
+        
         for corpse in corpses:
             if not paused:
                 alive = not corpse.rot(playSpeed)

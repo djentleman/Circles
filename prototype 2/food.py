@@ -47,7 +47,6 @@ class Corpse(Food):
 
     
 
-
 class Plant(Food):
     def __init__(self, x, y, environment):
         super().__init__(x, y, environment)
