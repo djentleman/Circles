@@ -15,10 +15,13 @@ class Food:
         self.environment = environment
         self.eaten = False
 
-    def getEaten(self):
-        self.actualRadius -= 0.07 # one bite
+    def getEaten(self, playSpeed):
+        self.actualRadius -= (0.5 * playSpeed) # one bite
+        if self.actualRadius < 0:
+            self.actualradius = 0
+            
         self.radius = int(self.actualRadius)
-        if self.actualRadius <= 0:
+        if self.actualRadius <= 2:
             self.eaten = True
         return self.eaten
 
@@ -43,14 +46,14 @@ class Corpse(Food):
         col = self.getColor()
         pygame.draw.circle(self.environment, col,
                            (int(self.x - scrollX), int(self.y - scrollY)),
-                           self.radius, 0)
+                           abs(self.radius), 0)
 
     
 
 class Plant(Food):
     def __init__(self, x, y, environment):
         super().__init__(x, y, environment)
-        self.growthRate = (random.random() / 100)
+        self.growthRate = (random.random() / 500)
         # rate at which the organism grows
 
     def grow(self, playSpeed):
@@ -64,7 +67,7 @@ class Plant(Food):
         col = self.getColor()
         pygame.draw.circle(self.environment, col,
                            (int(self.x - scrollX), int(self.y - scrollY)),
-                           self.radius, 0)
+                           abs(self.radius), 0)
 
 class PoisonPlant(Plant):
     def __init__(self, x, y, environment):

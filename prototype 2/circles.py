@@ -30,7 +30,7 @@ def runSim():
     fpsClock = pygame.time.Clock()
 
     environment = pygame.display.set_mode((900, 650))
-    pygame.display.set_caption('Circles v1.1')
+    pygame.display.set_caption('Circles v0.1.1')
     
     interface = Interface(environment)
 
@@ -78,7 +78,7 @@ def runSim():
             #elif event.type == MOUSEMOTION:
             #    mousex, mousey = event.pos
             #    # hover goes here
-            #    #print(mousex, mousey)
+            #    print(mousex, mousey)
             elif event.type == MOUSEBUTTONDOWN:
                 mousedown = True
                 mousex, mousey = event.pos
@@ -131,7 +131,10 @@ def runSim():
         for organism in organisms:
             # organism does it's stuff
             if not paused:
-                alive = organism.move(playSpeed)
+                alive, potentialFood = organism.move(playSpeed, [organisms, corpses, plants])
+                organisms = potentialFood[0]
+                corpses = potentialFood[1]
+                plants = potentialFood[2]
                 if not alive:
                     # organism has died
                     corpse = organism.getCorpse()

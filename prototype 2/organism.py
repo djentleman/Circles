@@ -25,10 +25,6 @@ class Organism:
         self.naturalSpeed = self.speed
         self.kenisisTimer = 0
         self.energy = 100.0
-        self.highEnergyCap = random.randint(100, 150)
-        # radius goes up once energy has exceeded cap
-        self.lowEnergyCap = random.randint(15, 40)
-        # radius goes down once energy below cap
         self.alive = True
 
         self.sightRays = random.randint(5, 12) # number of rays in sight
@@ -45,6 +41,8 @@ class Organism:
         # stops messy O(n^2) algorithms
 
         self.poisoned = False # poisoning damages energy heavily
+
+        self.nerveDensity = random.randint(4, 10)
 
 
     def focus(self):
@@ -79,16 +77,17 @@ class Organism:
         rayX = self.scrollX + ((self.radius + 3) * math.cos(rayDirection))
         rayY = self.scrollY + ((self.radius + 3) * math.sin(rayDirection))
         for i in range(self.sightRange):
+            if (rayX > 650 and self.actualX > 1900) or (rayX < 0 and self.actualX < 100) \
+               or (rayY > 650 and self.actualY > 1900) or (rayY < 0 and self.actualY < 100):
+                return rgb(255, 255, 255)
             try:
                 # range is measured in pixels
                 # print(rayX, rayY)
                 color = self.environment.get_at((int(rayX), int(rayY)))
-                if color != (0, 0, 0, 255) and color != (255, 255, 255, 255) \
+                if color != (0, 0, 0, 255) \
                    and color != (0, 255, 0, 255) and color != self.getBodyColor() \
                    and rayX < 650:
                     return color # seen something
-                elif rayX > 650:
-                    return rgb(255, 255, 255)
                 if self.isFocused:
                     # show tracing path
                     self.environment.set_at((int(rayX), int(rayY)), rgb(0, 255, 0))
@@ -96,7 +95,7 @@ class Organism:
                 rayY += math.sin(rayDirection)
             except (Exception):
                 # out of bounds error
-                return rgb(255, 255, 255) # wall!
+                return rgb(0, 0, 0) # wall!
         return rgb(0, 0, 0) # black
 
     def turn(self, change):
@@ -173,6 +172,7 @@ class Organism:
         
         if pixel[1] == pixel[2] and pixel[0] < self.aggression + 30 \
            and pixel != rgb(0, 0, 0):
+            self.behavior = "Chase"
             return True # flocking
         elif pixel[1] == pixel[2] and pixel[0] >= self.aggression + 30 \
            and pixel != rgb(0, 0, 0):
@@ -183,6 +183,8 @@ class Organism:
         if pixel[0] == 10 and pixel[2] == 10:
             # plant
             return True # food
+        if self.behavior == "Chase":
+            self.behavior = "Taxis"
         
         
         return None
@@ -240,16 +242,67 @@ class Organism:
         else:
             return 0
                 
+    def touch(self):
+        #checks if pixel is directly touching self
+        # direction is in degrees
+        direction = 0
+        gap = 360 / self.nerveDensity
+        while direction <= 360:
+            if direction > 360:
+                break
+            try:
+                touchDirection = (math.radians(self.direction) + math.radians(direction)) % 360
+                for sensitivity in range(3, 5):
+                    currentPixelX = (math.cos(touchDirection) * (self.radius + sensitivity)) + self.scrollX
+                    currentPixelY = (math.sin(touchDirection) * (self.radius + sensitivity)) + self.scrollY
+                    pixel = self.environment.get_at((int(currentPixelX), int(currentPixelY)))
+                    if not pixel == rgb(0, 0, 0) and not pixel == rgb(0, 255, 0):
+                        if direction < (self.sightWidth / 2) or direction > (360 - (self.sightWidth / 2)):
+                            return True # see and touch
+                        else:
+                            return False # only touch
+            except (Exception):
+                x = 1# lol
+            direction += gap
+        return None # not touching anything
+        
         
 
     
 
-    def move(self, playSpeed):
+    def move(self, playSpeed, potentialFood):
+        energyToSap = 0
         
         # one movement
 
         # seeing goes here
         self.vision = self.look()
+        touching = self.touch()
+
+        if touching != None: # second statement may need to change
+            # touching something!
+            if touching:
+                # check for food
+                foundFood = False
+                for plant in potentialFood[2]:
+                    if (plant.x + plant.actualRadius) > (self.actualX - self.actualRadius) and \
+                       (plant.x - plant.actualRadius) < (self.actualX + self.actualRadius) and \
+                       (plant.y + plant.actualRadius) > (self.actualY - self.actualRadius) and \
+                       (plant.y - plant.actualRadius) < (self.actualY + self.actualRadius):
+                        self.behavior = "Eating"
+                        self.eating = plant
+                        foundFood = True
+                        break
+                if not foundFood:
+                    self.eating = None
+                    self.behavior = "Taxis"
+                
+ 
+            else:
+                # dont know what it is, shit yourself!
+                x = 1
+                
+        
         if self.behavior == "Taxis":
             if self.speed > self.naturalSpeed:
                 self.accelerate(-self.speed * 0.04)
@@ -266,31 +319,46 @@ class Organism:
             change = self.kenisis()
             self.turn(change)
 
+        elif self.behavior == "Eating":
+            if self.eating != None:
+                energyToSap -= self.eating.nutrition / 150
+                if self.eating.getEaten(playSpeed):
+                    # fully eaten
+                    try:
+                        potentialFood[2].remove(self.eating)
+                    except (Exception):
+                        x = 1
+                    self.eating = None
+                    self.behavior = "Taxis"
+        elif self.behavior == "Chase":
+            self.accelerate(0.1)
+
         else:
             self.behavior = "Taxis"
+
                         
             
             
         
         # thinking goes here, analyse vision
+        if not self.behavior == "Eating":
+            energyToSap += self.wander(playSpeed)
 
-        energyToSap = self.wander(playSpeed)
+                
 
         if energyToSap != 0:
             self.energy -= (energyToSap * playSpeed)
             if self.speed == 0:
                 self.speed = self.naturalSpeed
         else:
-            #idle
+            #idle, only 'warm bloods'
             self.speed = 0
             self.energy -= (0.001 * playSpeed)
 
         if self.energy < 0:
             self.die()
-        elif self.energy > self.highEnergyCap:
-            self.actualRadius += 0.01
-        elif self.energy < self.lowEnergyCap:
-            self.actualRadius -= 0.01
+
+        self.actualRadius -= (energyToSap / 10) * playSpeed
             
         if self.actualRadius < 2:
             self.actualRadius = 2.0
@@ -299,7 +367,7 @@ class Organism:
         self.mass = math.pi * (self.actualRadius * self.actualRadius)
         
 
-        return self.alive
+        return self.alive, potentialFood
             
 
         

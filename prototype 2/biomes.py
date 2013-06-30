@@ -47,20 +47,16 @@ class Biome:
         
         # random food locator is generated using natural distribution
         # with random drift
-        randX1 = random.randint(abs(int((self.x - self.radius) ** 0.5)),
-                                abs(int((self.x + self.radius) ** 0.5)))
-        randX2 = random.randint(abs(int((self.x - self.radius) ** 0.5)),
-                                abs(int((self.x + self.radius) ** 0.5)))
+        randX = random.randint(abs(int((self.x - self.radius) ** 0.5)),
+                                abs(int((self.x + self.radius) ** 0.5))) ** 2
         driftX = random.randint(-20, 20)
-        randX = (randX1 * randX2) + driftX
+        randX += driftX
 
             
-        randY1 = random.randint(abs(int((self.y - self.radius) ** 0.5)),
-                                abs(int((self.y + self.radius) ** 0.5)))
-        randY2 = random.randint(abs(int((self.y - self.radius) ** 0.5)),
-                                abs(int((self.y + self.radius) ** 0.5)))
+        randY = random.randint(abs(int((self.y - self.radius) ** 0.5)),
+                                abs(int((self.y + self.radius) ** 0.5))) ** 2
         driftY = random.randint(-20, 20)
-        randY = (randY1 * randY2) + driftY
+        randY += driftY
 
         return randX, randY
             

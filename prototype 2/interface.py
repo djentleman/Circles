@@ -151,15 +151,11 @@ class Interface:
         
 
     def renderLocalStats(self):
-        drawText(self.environment, str(self.localStats[0]), 850, 190, 12)
-        drawText(self.environment, str(self.localStats[1]), 850, 210, 12)
-        drawText(self.environment, str(self.localStats[2]), 850, 230, 12)
-        drawText(self.environment, str(self.localStats[3]), 850, 250, 12)
-        drawText(self.environment, str(self.localStats[4]), 850, 270, 12)
-        drawText(self.environment, str(self.localStats[5]), 850, 290, 12)
-        drawText(self.environment, str(self.localStats[6]), 850, 310, 12)
-        drawText(self.environment, str(self.localStats[7]), 850, 330, 12)
-        drawText(self.environment, str(self.localStats[8]), 850, 350, 12)
+        currentY = 190
+        for i in range(9):
+            drawText(self.environment, str(self.localStats[i]), 850,
+                     currentY, 12)
+            currentY += 20
         
     def initInputs(self):
         drawText(self.environment, "Inputs", 745, 160, 18)
