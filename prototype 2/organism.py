@@ -1,10 +1,15 @@
 import pygame, sys, time, random, math
 from pygame.locals import *
 from pygame_util import *
+from genetics import *
 from food import *
+
+genes = generateGenes() #global for now, till can think of better way
+
 
 class Organism:
     def __init__(self, x, y, environment):
+        self.genome = generateRandomChromosome(genes)
         self.x = x
         self.y = y
         self.actualX = float(x)
@@ -21,7 +26,7 @@ class Organism:
         self.isMale = bool(random.randint(0, 1)) # 50/50 chance
         self.isFocused = False
         self.direction = random.randint(0, 360)
-        self.speed = random.random() + 0.25
+        self.speed = 2
         self.naturalSpeed = self.speed
         self.kenisisTimer = 0
         self.energy = 100.0
@@ -44,7 +49,23 @@ class Organism:
 
         self.nerveDensity = random.randint(4, 10)
 
+        self.setUpGenetics()
 
+    def setUpGenetics(self):
+        for gene in range(self.genome.getGenomeLength()):
+            
+            #for effect in range(len(self.chromosome.getGene(gene))):
+            thisGene = self.genome.getGene(gene)
+            if thisGene[0] == 1 and thisGene[1] == 1:
+               
+                for effects in range(len(genes[gene].getPheno())):
+                    pheno = genes[gene].getPheno()
+                    print(pheno[effects][0])
+                    print(pheno[effects][1])
+                    if(pheno[effects][0] == "speed"):
+                        self.speed = self.speed + pheno[effects][1]
+                        self.naturalSpeed = self.speed
+    
     def focus(self):
         self.isFocused = True
 

@@ -8,6 +8,8 @@ from pygame_util import *
 from interface import *
 from food import *
 from biomes import *
+from genetics import *
+
 
 def checkForOrganism(x, y, organisms):
     for organism in organisms:
@@ -24,6 +26,7 @@ def purgeFocus(organisms, focus):
     for organism in organisms:
         if not organism == focus:
             organism.unFocus()
+            
 
 def runSim():    
     pygame.init()
