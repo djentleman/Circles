@@ -11,12 +11,10 @@ class Chromosome:
     # genome is fixed length, made of one chromosome
     def __init__(self, genome):
         self.genome = genome # array of genotypes
-
+        # where are the genes :S? 
     def displayGenome(self):
         print(self.genome)
 
-    def getGenomeLength(self):
-        return (len(self.genome))
 
     def getGene(self, index):
         return (self.genome[index])
@@ -32,14 +30,12 @@ class Gene:
     # and a phenotype it is tied to
     #genotype is expressed a boolean tuple
     
-    def __init__(self, name, phenotype):
+    def __init__(self, name, phenotype, dominant):
         self.name = name # eg. long legged
-        self.phenotype = phenotype # an array of everything this
-        # gene effects, and how much it effects it, stored as tuples
-        # eg. [("speed", 1.1), ("HP", 0.95), ...., ]
-
-    def getPheno(self):
-        return self.phenotype
+        self.phenotype = phenotype # what it affects; how much it affects
+        self.dominant = dominant
+        # store allele here!
+        # is left for the organism code to decide
 
     def mutate(self):
         rand = random.random() # generate float between 1 and 0
@@ -84,25 +80,12 @@ def punnett(g1, g2):
 
 def generateGenes():
     geneIndex = []
-    gene = Gene("gene1", [("speed", 0.5)])
+    gene = Gene("speed gene 1", ["speedCooeficiant"], True) # s = (m.n) + c
+    geneIndex.append(gene) # AA/Aa/aA = 0.9 aa = 0.4
+    gene = Gene("speed gene 2", ["speedCooeficiant"], True)
     geneIndex.append(gene)
-    gene = Gene("gene2", [("speed", 0.5)])
-    geneIndex.append(gene)
-    gene = Gene("gene3", [("speed", 0.5)])
-    geneIndex.append(gene)
-    gene = Gene("gene4", [("speed", 0.5)])
-    geneIndex.append(gene)
-    gene = Gene("gene5", [("speed", 0.5)])
-    geneIndex.append(gene)
-    gene = Gene("gene6", [("speed", 0.5)])
-    geneIndex.append(gene)
-    gene = Gene("gene7", [("speed", 0.5)])
-    geneIndex.append(gene)
-    gene = Gene("gene8", [("speed", 0.5)])
-    geneIndex.append(gene)
-    gene = Gene("gene9", [("speed", 0.5)])
-    geneIndex.append(gene)
-    gene = Gene("gene10", [("speed", 0.5), ("radius", 5)])
-    geneIndex.append(gene)
+    gene = Gene("speed gene 3", ["speedConstant"], True)
+    geneIndex.append(gene) # AA/Aa/aA = 0.4 aa = 0.0
+    
 
     return geneIndex

@@ -4,12 +4,14 @@ from pygame_util import *
 from genetics import *
 from food import *
 
-genes = generateGenes() #global for now, till can think of better way
+
 
 
 class Organism:
     def __init__(self, x, y, environment):
-        self.genome = generateRandomChromosome(genes)
+        self.genes = generateGenes()
+        self.genome = generateRandomChromosome(self.genes)
+        # THIS NEEDS TO BE SORTED IN THE GOM!^
         self.x = x
         self.y = y
         self.actualX = float(x)
@@ -26,7 +28,7 @@ class Organism:
         self.isMale = bool(random.randint(0, 1)) # 50/50 chance
         self.isFocused = False
         self.direction = random.randint(0, 360)
-        self.speed = 2
+        self.speed = 1
         self.naturalSpeed = self.speed
         self.kenisisTimer = 0
         self.energy = 100.0
@@ -52,18 +54,26 @@ class Organism:
         self.setUpGenetics()
 
     def setUpGenetics(self):
-        for gene in range(self.genome.getGenomeLength()):
+        for gene in range(len(self.genome.genome)):
             
             #for effect in range(len(self.chromosome.getGene(gene))):
+            #alleles need to be an attribue of genes
             thisGene = self.genome.getGene(gene)
             if thisGene[0] == 1 and thisGene[1] == 1:
                
-                for effects in range(len(genes[gene].getPheno())):
-                    pheno = genes[gene].getPheno()
-                    print(pheno[effects][0])
-                    print(pheno[effects][1])
-                    if(pheno[effects][0] == "speed"):
-                        self.speed = self.speed + pheno[effects][1]
+                for effect in (self.genes[gene].phenotype):
+                    print(effect)
+                    if(effect == "speedCoeficent"):
+                        self.speed *= 0.9
+                        self.naturalSpeed = self.speed
+                    elif(effect == "speedConstant"):
+                        self.speed += 0.4
+                        self.naturalSpeed = self.speed
+            else:
+                for effect in (self.genes[gene].phenotype):
+                    print(effect)
+                    if(effect == "speedCoeficent"):
+                        self.speed *=  0.4
                         self.naturalSpeed = self.speed
     
     def focus(self):
