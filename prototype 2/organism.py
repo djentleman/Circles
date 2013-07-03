@@ -58,12 +58,12 @@ class Organism:
             
             #for effect in range(len(self.chromosome.getGene(gene))):
             #alleles need to be an attribue of genes
+            print(self.genome.genome)
             thisGene = self.genome.getGene(gene)
             if thisGene[0] == 1 and thisGene[1] == 1:
                
                 for effect in (self.genes[gene].phenotype):
-                    print(effect)
-                    if(effect == "speedCoeficent"):
+                    if(effect == "speedCooeficiant"):
                         self.speed *= 0.9
                         self.naturalSpeed = self.speed
                     elif(effect == "speedConstant"):
@@ -71,8 +71,7 @@ class Organism:
                         self.naturalSpeed = self.speed
             else:
                 for effect in (self.genes[gene].phenotype):
-                    print(effect)
-                    if(effect == "speedCoeficent"):
+                    if(effect == "speedCooeficiant"):
                         self.speed *=  0.4
                         self.naturalSpeed = self.speed
     
