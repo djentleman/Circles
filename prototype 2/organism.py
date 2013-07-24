@@ -11,7 +11,6 @@ class Organism:
     def __init__(self, x, y, environment):
         self.genes = generateGenes()
         self.genome = generateRandomChromosome(self.genes)
-        # THIS NEEDS TO BE SORTED IN THE GOM!^
         self.x = x
         self.y = y
         self.actualX = float(x)
@@ -33,6 +32,13 @@ class Organism:
         self.kenisisTimer = 0
         self.energy = 100.0
         self.alive = True
+
+        self.gestating = False
+        self.gestation = 0
+        self.matingRecharge = 50
+
+        self.childGenome = []
+        
 
         self.sightRays = random.randint(5, 12)# number of rays in sight
         if self.sightRays % 2 == 0:
@@ -309,6 +315,22 @@ class Organism:
         organisms = potentialFood[0]
         corpses = potentialFood[1]
         plants = potentialFood[2]
+
+        if self.gestating:
+            print(self.gestation)
+            self.gestation -= 1
+            if self.gestation < 0:
+                child = Organism(self.actualX + 1, self.actualY + 1, self.environment)
+                child.genome = Chromosome(self.childGenome)
+                potentialFood[0].append(child)
+                #print(organism.genome.genome)
+                #print(self.genome.genome)
+                #print(childGenome)
+                #print()
+                self.gestating= False
+                
+        self.matingRecharge -= 1
+        
         
         # one movement
 
@@ -340,15 +362,14 @@ class Organism:
                            (organism.actualX - organism.actualRadius) < (self.actualX + self.actualRadius) and \
                            (organism.actualY + organism.actualRadius) > (self.actualY - self.actualRadius) and \
                            (organism.actualY - organism.actualRadius) < (self.actualY + self.actualRadius):
-                            if organism.isMale != self.isMale:
+                            if organism.isMale != self.isMale and self.matingRecharge < 0:
                                 # opposite secks
                                 self.behavior = "MATING"
                                 foundMate = True
-                                childGenome = breed(organism.genome, self.genome)
-                                print(organism.genome.genome)
-                                print(self.genome.genome)
-                                print(childGenome)
-                                print()
+                                self.childGenome = breed(organism.genome, self.genome)
+                                if not self.isMale:
+                                    self.gestating = True
+                                    self.gestation = 50
                                 break
                     if not foundMate:
                         self.eating = None
@@ -416,7 +437,7 @@ class Organism:
         if self.energy < 0:
             self.die()
 
-        self.actualRadius -= (energyToSap / 10) * playSpeed
+        self.actualRadius -= (energyToSap / 20) * playSpeed
             
         if self.actualRadius < 2:
             self.actualRadius = 2.0
