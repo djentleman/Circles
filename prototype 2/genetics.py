@@ -11,7 +11,6 @@ class Chromosome:
     # genome is fixed length, made of one chromosome
     def __init__(self, genome):
         self.genome = genome # array of genotypes
-        # where are the genes :S? 
     def displayGenome(self):
         print(self.genome)
 
@@ -59,7 +58,8 @@ def generateRandomChromosome(genes):
     return Chromosome(genome)
         
         
-def breed (parent1, parent2, genomeLength):
+def breed (parent1, parent2):
+    genomeLength = len(parent1.genome)
     newGenome = []
     for i in range(genomeLength): 
         newGene = punnett(parent1.getGene(i), parent2.getGene(i))
@@ -80,11 +80,11 @@ def punnett(g1, g2):
 
 def generateGenes():
     geneIndex = []
-    gene = Gene("speed gene 1", ["speedCooeficiant"], True) # s = (m.n) + c
+    gene = Gene("speed gene 1", ["spdcf"], True) # s = (m.n) + c
     geneIndex.append(gene) # AA/Aa/aA = 0.9 aa = 0.4
-    gene = Gene("speed gene 2", ["speedCooeficiant"], True)
+    gene = Gene("speed gene 2", ["spdcf"], True)
     geneIndex.append(gene)
-    gene = Gene("speed gene 3", ["speedConstant"], True)
+    gene = Gene("speed gene 3", ["spdcn"], True)
     geneIndex.append(gene) # AA/Aa/aA = 0.4 aa = 0.0
     
 

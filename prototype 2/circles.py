@@ -37,7 +37,7 @@ def runSim():
     
     interface = Interface(environment)
 
-    noOfOrganisms = 50
+    noOfOrganisms = 120
     noOfPlants = 0
     noOfCorpses = 0
     playSpeed = 1.0

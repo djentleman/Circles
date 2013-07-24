@@ -34,7 +34,9 @@ class Organism:
         self.energy = 100.0
         self.alive = True
 
-        self.sightRays = random.randint(5, 12) # number of rays in sight
+        self.sightRays = random.randint(5, 12)# number of rays in sight
+        if self.sightRays % 2 == 0:
+            self.sightRays += 1
         self.sightRange = random.randint(20, 80) # range of each ray
         self.sightWidth = random.randint(4, 12) ** 2
         # how wide the vision is in degrees
@@ -58,22 +60,24 @@ class Organism:
             
             #for effect in range(len(self.chromosome.getGene(gene))):
             #alleles need to be an attribue of genes
-            print(self.genome.genome)
+            #print(self.genome.genome)
             thisGene = self.genome.getGene(gene)
-            if thisGene[0] == 1 and thisGene[1] == 1:
+            if thisGene[0] == 1 or thisGene[1] == 1:
+                #AA, Aa, aA
                
                 for effect in (self.genes[gene].phenotype):
-                    if(effect == "speedCooeficiant"):
+                    if(effect == "spdcf"):
                         self.speed *= 0.9
                         self.naturalSpeed = self.speed
-                    elif(effect == "speedConstant"):
+                    elif(effect == "spdcn"):
                         self.speed += 0.4
                         self.naturalSpeed = self.speed
             else:
                 for effect in (self.genes[gene].phenotype):
-                    if(effect == "speedCooeficiant"):
-                        self.speed *=  0.4
+                    if(effect == "spdcf"):
+                        self.speed *=  0.5
                         self.naturalSpeed = self.speed
+            #print(self.speed)
     
     def focus(self):
         self.isFocused = True
@@ -302,6 +306,9 @@ class Organism:
 
     def move(self, playSpeed, potentialFood):
         energyToSap = 0
+        organisms = potentialFood[0]
+        corpses = potentialFood[1]
+        plants = potentialFood[2]
         
         # one movement
 
@@ -314,7 +321,7 @@ class Organism:
             if touching:
                 # check for food
                 foundFood = False
-                for plant in potentialFood[2]:
+                for plant in plants:
                     if (plant.x + plant.actualRadius) > (self.actualX - self.actualRadius) and \
                        (plant.x - plant.actualRadius) < (self.actualX + self.actualRadius) and \
                        (plant.y + plant.actualRadius) > (self.actualY - self.actualRadius) and \
@@ -326,6 +333,27 @@ class Organism:
                 if not foundFood:
                     self.eating = None
                     self.behavior = "Taxis"
+                    # check for mate
+                    foundMate = False
+                    for organism in organisms:
+                        if (organism.actualX + organism.actualRadius) > (self.actualX - self.actualRadius) and \
+                           (organism.actualX - organism.actualRadius) < (self.actualX + self.actualRadius) and \
+                           (organism.actualY + organism.actualRadius) > (self.actualY - self.actualRadius) and \
+                           (organism.actualY - organism.actualRadius) < (self.actualY + self.actualRadius):
+                            if organism.isMale != self.isMale:
+                                # opposite secks
+                                self.behavior = "MATING"
+                                foundMate = True
+                                childGenome = breed(organism.genome, self.genome)
+                                print(organism.genome.genome)
+                                print(self.genome.genome)
+                                print(childGenome)
+                                print()
+                                break
+                    if not foundMate:
+                        self.eating = None
+                        self.behavior = "Taxis"
+                          
                 
  
             else:
