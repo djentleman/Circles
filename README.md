@@ -1,4 +1,4 @@
 Circles
 =======
 
-Attempt at digital organisms using neural networks and genetic algorithms.
+Attempt at digital organisms using genetic algorithms.
